@@ -14,7 +14,7 @@ std::vector<std::string> ChooseRandomNames(const int num_enemies) {
     std::vector<std::string> names{"John","Alice","Bobby","Sydney","Bill","Sam","Ryan","Lily","Bailey","Michael"};
     std::vector<std::string> ret_vec;
     for (int i = 0; i < num_enemies; i++) {
-        int rando = rand() % 11;
+        int rando = rand() % 10;
         ret_vec.push_back(names.at(rando));
     }
     return ret_vec;
@@ -49,7 +49,6 @@ std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b
   Default maze constructor
 */
 Maze::Maze() {
-   
     std::vector<Board*> boards;
     boards.push_back(new Board());
     while (!boards.back()->IsSolvable()) {
@@ -100,6 +99,7 @@ void Maze::KillAll() {
 void Maze::DoEnemyTurn(Player *p) {
     std::cout << p->get_name() << "'s Turn (above)" << std::endl;
     std::vector<Position> possibles = board_->GetMoves(p);
+    if (possibles.size() == 0) {return;}
     int rando = rand() % possibles.size();
 
     if (board_->get_square_value(possibles.at(rando)) == SquareType::Human) {

@@ -40,7 +40,7 @@ public:
 //	// Get the square type of the exit square
 	SquareType GetExitOccupant() const {return arr_[rows_-2][cols_-2];}
 	//helper for is solvable
-	bool IsValid(const Position pos) {return arr_[pos.row][pos.col] == SquareType::Empty;} 
+	bool IsValid(const Position &pos) {return (arr_[pos.row][pos.col] != SquareType::Wall);};
 //  //  Return wether the current Board is solvable
 	bool IsSolvable();
 //	// You probably want to implement this

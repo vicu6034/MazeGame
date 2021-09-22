@@ -135,7 +135,7 @@ bool Board::MovePlayer(Player *p, Position pos) {
   POSSIBLE to fail, but VERY unlikely given 1 size maze
   @return bool representing if (this) Board is solvable
 */
-
+/*
 bool Board::IsSolvable() {
     if ((arr_[1][2] == SquareType::Wall) && (arr_[2][1] == SquareType::Wall)) {
         return false;
@@ -159,11 +159,6 @@ bool Board::IsSolvable() {
         return true;
     }
 }
-
-/**
-  helper function to see if a tile is valid
-  @param Position to check if valid
-  @return bool representing if tile is valid
 */
 
 /**
@@ -173,9 +168,9 @@ bool Board::IsSolvable() {
   POSSIBLE to fail, but VERY unlikely given 1 size maze
   @return bool representing if (this) Board is solvable
 */
-/*
+
 bool Board::IsSolvable() {
-    if ((arr_[1][2] != SquareType::Wall) && (arr_[2][1] != SquareType::Wall)) {
+    if (!((arr_[1][2] == SquareType::Wall) && (arr_[2][1] == SquareType::Wall))) {
         std::queue<Position> q;
         Position starter;
         starter.row = 1;
@@ -191,20 +186,20 @@ bool Board::IsSolvable() {
             Position p1;
             p1.row = p.row + 1;
             p1.col = p.col;
-            if (((p.row+1) < (rows_-1)) && IsValid(p1)) {
+            if (((p1.row) < (rows_-1)) && IsValid(p1)) {
                 q.push(p1);
             }
             Position p2;
             p2.row = p.row;
             p2.col = p.col+1;
-            if (((p.col+1) < (cols_-1)) && IsValid(p2)) {
+            if (((p2.col) < (cols_-1)) && IsValid(p2)) {
                 q.push(p2);
             }
         }
     } 
     return false;
 }
-*/
+
 /**
   Overload << operator to print out Board
   @param os to overload
