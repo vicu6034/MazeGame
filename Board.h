@@ -38,7 +38,9 @@ public:
 	bool MovePlayer(Player *p, Position pos);
 //
 //	// Get the square type of the exit square
-	SquareType GetExitOccupant() const {return arr_[4][4];}
+	SquareType GetExitOccupant() const {return arr_[rows_-2][cols_-2];}
+	//helper for is solvable
+	bool IsValid(const Position pos) {return arr_[pos.row][pos.col] == SquareType::Empty;} 
 //  //  Return wether the current Board is solvable
 	bool IsSolvable();
 //	// You probably want to implement this

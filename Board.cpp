@@ -1,5 +1,6 @@
 #include "Board.h"
 
+#include <queue>
 /**
   Helper function to transform a SquareType to a string
   @param SquareType to be transformed
@@ -129,12 +130,12 @@ bool Board::MovePlayer(Player *p, Position pos) {
 }
 
 /**
-  use bfs or modified version to see if maze is traversable 
-  actually just checks to make sure theres no walls that block all the way across
+  checks to make sure theres no walls that block all the way across
   and that you can enter/exit the starting and ending positions 
   POSSIBLE to fail, but VERY unlikely given 1 size maze
   @return bool representing if (this) Board is solvable
 */
+
 bool Board::IsSolvable() {
     if ((arr_[1][2] == SquareType::Wall) && (arr_[2][1] == SquareType::Wall)) {
         return false;
@@ -150,11 +151,60 @@ bool Board::IsSolvable() {
         return false;
     } else if ((arr_[4][1] == SquareType::Wall) && (arr_[3][2] == SquareType::Wall) && (arr_[2][3] == SquareType::Wall) && (arr_[1][1] == SquareType::Wall)) {
         return false;
+    } else if ((arr_[1][2] == SquareType::Wall) && (arr_[2][2] == SquareType::Wall) && (arr_[3][1] == SquareType::Wall)) {
+        return false;
+    } else if ((arr_[4][3] == SquareType::Wall) && (arr_[3][3] == SquareType::Wall) && (arr_[2][4] == SquareType::Wall)) {
+        return false;
     }else {
         return true;
     }
 }
 
+/**
+  helper function to see if a tile is valid
+  @param Position to check if valid
+  @return bool representing if tile is valid
+*/
+
+/**
+  use bfs or modified version to see if maze is traversable 
+  actually just checks to make sure theres no walls that block all the way across
+  and that you can enter/exit the starting and ending positions 
+  POSSIBLE to fail, but VERY unlikely given 1 size maze
+  @return bool representing if (this) Board is solvable
+*/
+/*
+bool Board::IsSolvable() {
+    if ((arr_[1][2] != SquareType::Wall) && (arr_[2][1] != SquareType::Wall)) {
+        std::queue<Position> q;
+        Position starter;
+        starter.row = 1;
+        starter.col = 1;
+        q.push(starter);
+
+        while (!q.empty()) {
+            Position p = q.front();
+            q.pop();
+            if (p.row == rows_-2 && p.col == cols_-2) {
+                return true;
+            }
+            Position p1;
+            p1.row = p.row + 1;
+            p1.col = p.col;
+            if (((p.row+1) < (rows_-1)) && IsValid(p1)) {
+                q.push(p1);
+            }
+            Position p2;
+            p2.row = p.row;
+            p2.col = p.col+1;
+            if (((p.col+1) < (cols_-1)) && IsValid(p2)) {
+                q.push(p2);
+            }
+        }
+    } 
+    return false;
+}
+*/
 /**
   Overload << operator to print out Board
   @param os to overload

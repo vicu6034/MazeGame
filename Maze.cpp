@@ -49,11 +49,14 @@ std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b
   Default maze constructor
 */
 Maze::Maze() {
-    Board *board = new Board();
-    while (!board->IsSolvable()) {
-        board = new Board();
+   
+    std::vector<Board*> boards;
+    boards.push_back(new Board());
+    while (!boards.back()->IsSolvable()) {
+        boards.push_back(new Board);
     }
-    board_ = board;
+    board_ = boards.back();
+    
     turn_count_ = 0;
     current_player_idx_ = 0;
 }
