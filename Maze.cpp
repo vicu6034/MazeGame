@@ -33,8 +33,8 @@ std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b
         pos.row = rand_row;
         pos.col = pos.col;
         while (!(b.get_square_value(pos) == SquareType::Empty) || (pos == starter) || (pos == exit)) {
-            rand_row = 1 + (rand() % b.get_rows());
-            rand_col = 1 + (rand() % b.get_cols());
+            rand_row = 1 + (rand() % (b.get_rows()-1));
+            rand_col = 1 + (rand() % (b.get_cols()-1));
             pos.row = rand_row;
             pos.col = rand_col;
         }
@@ -110,16 +110,19 @@ void Maze::DoEnemyTurn(Player *p) {
     }
 }
 
+/**
+  Method to compute what happens after the player chooses their direction
+  @param Player whos turn it is
+  @param Position they would like to move to
+*/
 void Maze::DoHumanTurnLogic(Player *p, Position &pos) {
      if (board_->get_square_value(pos) == SquareType::Wall) {
-        //the case where a player runs into a wall
-        //do nothing
+        //the case where a player runs into a wall, do nothing
     } else if (board_->get_square_value(pos) == SquareType::Enemy) {
-        //the case where a human runs into an ai
-        //kill the human
+        //the case where a human runs into an ai, kill the human
         p->Kill();
     } else {
-        //the case where theres a valid move, nove the player
+        //the case where theres a valid move, move the player
         board_->MovePlayer(p, pos);
     }
 }

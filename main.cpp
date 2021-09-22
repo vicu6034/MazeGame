@@ -11,6 +11,14 @@ int main() {
     std::cout << "HI! Welcome to my Maze!" << std::endl;
     std::cout << "Please input your name to play: ";
     std::cin >> name;
+    //print out a key
+    std::cout << std::endl << "KEY: " << std::endl;
+    std::cout << "    EMPTY SPACES ARE 'OPEN'" << std::endl;
+    std::cout << "    H = Human (YOU)" << std::endl;
+    std::cout << "    X = Enemy (DEATH)" << std::endl;
+    std::cout << "    W = Wall (BLOCKED)" << std::endl;
+    std::cout << "    T = Treasure (POINTS)" << std::endl;
+    std::cout << "    E = End (WIN)" << std::endl << std::endl;
     //create the maze and human player
     Player *myPlayer = new Player(name, true);
     Maze *myMaze = new Maze();
