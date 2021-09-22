@@ -3,8 +3,6 @@
 #include <iostream>
 
 #include "Maze.h"
-//check if enemies should be able to go to exit
-//change this to return a vector of names, the size == num_enemies 
 /**
   Helper function to choose random names for the ais
   @param int num of enemies to be in the game
@@ -112,6 +110,20 @@ void Maze::DoEnemyTurn(Player *p) {
     }
 }
 
+void Maze::DoHumanTurnLogic(Player *p, Position &pos) {
+     if (board_->get_square_value(pos) == SquareType::Wall) {
+        //the case where a player runs into a wall
+        //do nothing
+    } else if (board_->get_square_value(pos) == SquareType::Enemy) {
+        //the case where a human runs into an ai
+        //kill the human
+        p->Kill();
+    } else {
+        //the case where theres a valid move, nove the player
+        board_->MovePlayer(p, pos);
+    }
+}
+
 /**
   Method to take a players turn
   @param Player whos turn it is
@@ -151,58 +163,19 @@ void Maze::TakeTurn(Player *p) {
     //ugly please fix
     if ((choice == "N") || (choice == "n") || (choice == "north") || (choice == "North") || (choice == "NORTH")) {
         //cases when the player goes north
-        if ((board_->get_square_value(north) == SquareType::Wall) || (board_->get_square_value(north) == SquareType::Enemy && !p->is_human())) {
-            //the case where a player runs into a wall or where an enemy runs into an enemy
-            //do nothing
-        } else if (board_->get_square_value(north) == SquareType::Enemy) {
-            //the case where a human runs into an ai
-            //kill the human
-            p->Kill();
-        } else {
-            //the case where theres a valid move, nove the player
-            board_->MovePlayer(p, north);
-        }
+        DoHumanTurnLogic(p,north);
     } else if ((choice == "E") || (choice == "e") || (choice == "east") || (choice == "East") || (choice == "EAST")) {
         //cases when the player goes east
-        if (board_->get_square_value(east) == SquareType::Wall) {
-            //the case where you run into a wall
-            //do nothing
-        } else if (board_->get_square_value(east) == SquareType::Enemy) {
-            //the case where a human runs into an ai
-            //kill the human
-            p->Kill();
-        } else {
-            //the case where theres a valid move, move the player
-            board_->MovePlayer(p, east);
-        }
+        DoHumanTurnLogic(p,east);
     } else if ((choice == "S") || (choice == "s") || (choice == "south") || (choice == "South") || (choice == "SOUTH")) {
         //cases when the player goes south
-        if (board_->get_square_value(south) == SquareType::Wall) {
-            //the case where you run into a wall
-            //do nothing
-        } else if (board_->get_square_value(south) == SquareType::Enemy) {
-            //the case where a human runs into an ai
-            //kill the human
-            p->Kill();
-        } else {
-            //the case where theres a valid move, nove the player
-            board_->MovePlayer(p, south);
-        }
+        DoHumanTurnLogic(p,south);
     } else if ((choice == "W") || (choice == "w") || (choice == "west") || (choice == "West") || (choice == "WEST")) {
         //cases when the player goes west
-        if (board_->get_square_value(west) == SquareType::Wall) {
-            //the case where you run into a wall
-            //do nothing
-        } else if (board_->get_square_value(west) == SquareType::Enemy) {
-            //the case where a human runs into an ai
-            //kill the human
-            p->Kill();
-        } else {
-            //the case where theres a valid move, nove the player
-            board_->MovePlayer(p, west);
-        }
+        DoHumanTurnLogic(p,west);
     } else {
-        //if theres an invalid input, alert the player they've lost their turn
+        //else theres an invalid input
+        //alert the player they've lost their turn
         std::cout << "Invalid Input, skipping turn" << std::endl;
     }
     turn_count_++;

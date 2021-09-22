@@ -27,6 +27,7 @@ public:
 	//kill all players
 	void KillAll();
     void DoEnemyTurn(Player *p);
+	void DoHumanTurnLogic(Player *p, Position &pos);
 //	// return true iff the human made it to the exit 
 //	// or the enemies ate all the humans
 	bool IsGameOver();
