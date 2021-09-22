@@ -44,7 +44,7 @@ Board::Board() {
     //set edges as walls and random for the inside
     for (int i = 0; i < rows_; i++) {
         for (int j = 0; j < cols_; j++) {
-            if (i == 0 || j == 0 || i == 5 || j == 5) {
+            if ((i == 0) || (j == 0) || (i == (rows_-1)) || (j == (cols_-1))) {
                 arr_[i][j] = SquareType::Wall;
             } else {
                 arr_[i][j] = ChooseRandomSquareType();
@@ -52,8 +52,8 @@ Board::Board() {
         }
     }
     //10% chance that empty squares get treasure in them
-    for (int i = 0; i < rows_; i++) {
-        for (int j = 0; j < cols_; j++) {
+    for (int i = 1; i < rows_-1; i++) {
+        for (int j = 1; j < cols_-1; j++) {
             int rando = rand()%100;
             if (arr_[i][j] == SquareType::Empty && rando < 10) {
                 arr_[i][j] = SquareType::Treasure;
@@ -62,7 +62,7 @@ Board::Board() {
     }
     //set start and exit positions
     arr_[1][1] = SquareType::Human;
-    arr_[4][4] = SquareType::Exit;
+    arr_[cols_-2][rows_-2] = SquareType::Exit;
 }
 
 /**
@@ -162,13 +162,9 @@ bool Board::IsSolvable() {
 */
 
 /**
-  use bfs or modified version to see if maze is traversable 
-  actually just checks to make sure theres no walls that block all the way across
-  and that you can enter/exit the starting and ending positions 
-  POSSIBLE to fail, but VERY unlikely given 1 size maze
+  use BFS to check if a Board is solvable
   @return bool representing if (this) Board is solvable
 */
-
 bool Board::IsSolvable() {
     if (!((arr_[1][2] == SquareType::Wall) && (arr_[2][1] == SquareType::Wall))) {
         std::queue<Position> q;
