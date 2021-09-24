@@ -36,7 +36,8 @@ int main() {
     std::cout << "    H = Human (YOU)" << std::endl;
     std::cout << "    X = Enemy (DEATH)" << std::endl;
     std::cout << "    W = Wall (BLOCKED)" << std::endl;
-    std::cout << "    T = Treasure (POINTS)" << std::endl;
+    std::cout << "    G = Gold (100 POINTS)" << std::endl;
+    std::cout << "    S = Silver (50 POINTS)" << std::endl;
     std::cout << "    E = End (WIN)" << std::endl << std::endl;
     //create the maze and human player
     Player *myPlayer = new Player(name, true);
@@ -49,5 +50,4 @@ int main() {
     }
     //show how many points the players got
     std::cout << myMaze->GenerateReport();
-
 }
