@@ -26,8 +26,8 @@ std::string SquareTypeStringify(const SquareType sq) {
 }
 
 /**
-  Helper function to choose SquareType based on given chances
-  Use input to determine how many woll be returned Wall/Empty
+  Helper function to choose SquareType based on difficulty
+  Use input to determine how many spaces to be returned Wall/Empty
   @return SquareType that is randomly selected
   @param character that tells the difficulty
 */
@@ -47,6 +47,7 @@ SquareType ChooseRandomSquareType(char difficulty) {
             wall_chance = 0;
             break;
     }
+
     int rando = rand() % 100;
     if (rando < wall_chance) {return SquareType::Wall;}
     else {return SquareType::Empty;}
@@ -111,16 +112,16 @@ Board::Board(char c_size, char c_diff) {
 std::vector<Position> Board::ChooseEnemyPositions(int num_enemies) {
     std::vector<Position> ret_vec;
     for (int i = 0; i < num_enemies; i++) {
-        Position pos, starter, exit;
-        starter.row = 1;
-        starter.col = 1;
-        exit.row = rows_-2;
-        exit.col = cols_-2;
+        Position pos;//, starter, exit;
+        //starter.row = 1;
+        //starter.col = 1;
+        //exit.row = rows_-2;
+        //exit.col = cols_-2;
         int rand_row = 1 + ( std::rand() %  (rows_-1) );
-        int rand_col = 1 + ( std::rand() %  (cols_ -1) );
+        int rand_col = 1 + ( std::rand() %  (cols_-1) );
         pos.row = rand_row;
         pos.col = pos.col;
-        while (!(get_square_value(pos) == SquareType::Empty) || (pos == starter) || (pos == exit)) {
+        while (get_square_value(pos) != SquareType::Empty) { //|| (pos == starter) || (pos == exit)) {
             rand_row = 1 + ( std::rand() %  (rows_-1) );
             rand_col = 1 + ( std::rand() %  (cols_ -1) );
             pos.row = rand_row;
@@ -197,7 +198,6 @@ bool Board::MovePlayer(Player *p, Position pos) {
 /**
   checks to make sure theres no walls that block all the way across
   and that you can enter/exit the starting and ending positions 
-  POSSIBLE to fail, but VERY unlikely given 1 size maze
   @return bool representing if (this) Board is solvable
 */
 /*

@@ -4,6 +4,11 @@
 
 #include "Maze.h"
 
+/**
+  Helper function to normalize a string into just the lowercase version of the first letter
+  @param string to normalize
+  @return char that represents normalized version of string
+*/
 char NormalizeInput(std::string str) {return tolower(str[0]);}
 
 /**
@@ -12,10 +17,10 @@ char NormalizeInput(std::string str) {return tolower(str[0]);}
   @return vector of strings that are names
 */
 std::vector<std::string> ChooseRandomNames(const int num_enemies) {
-    std::vector<std::string> names{"John","Alice","Bobby","Sydney","Bill","Sam","Ryan","Lily","Bailey","Michael","Tori"};
+    std::vector<std::string> names{"John","Alice","Bobby","Sydney","Bill","Sam","Ryan","Lily","Ali","Michael","Tori"};
     std::vector<std::string> ret_vec;
     for (int i = 0; i < num_enemies; i++) {
-        int rando = rand() % 10;
+        int rando = std::rand() % 10;
         ret_vec.push_back(names.at(rando));
     }
     return ret_vec;
@@ -61,6 +66,7 @@ void Maze::NewGame(Player *human) {
         board_->SetSquareValue(enemy_positions.at(i), SquareType::Enemy);
     }
 }
+
 /**
   Method to kill all players
   force end the game
@@ -70,6 +76,7 @@ void Maze::KillAll() {
         players_.at(i)->Kill();
     }
 }
+
 /**
   Method to take the ais turn
   @param Player whos turn it is
@@ -77,16 +84,19 @@ void Maze::KillAll() {
 void Maze::DoEnemyTurn(Player *p) {
     std::cout << p->get_name() << "'s Turn (above)" << std::endl;
     std::vector<Position> possibles = board_->GetMoves(p);
+    //if theres no moves, do nothing
+    //else do the enemies turn
     if (possibles.empty()) {return;}
     else {
         int rando = rand() % possibles.size();
-
         if (board_->get_square_value(possibles.at(rando)) == SquareType::Human) {
+            //if ai moves onto a human, kill the human
             std::cout << "An enemy has killed you!" << std::endl;
             KillAll();
         } else if ((board_->get_square_value(possibles.at(rando)) == SquareType::Enemy) || (board_->get_square_value(possibles.at(rando)) == SquareType::Exit)) {
             //do nothing if an enemy moves onto an enemy or the exit (they should never try to go into a wall)
         } else {
+            //a normal move
             board_->MovePlayer(p,possibles.at(rando));
         }
         return;
@@ -115,7 +125,6 @@ void Maze::DoHumanTurnLogic(Player *p, Position &pos) {
   @param Player whos turn it is
 */
 void Maze::TakeTurn(Player *p) {
-    if (p->is_human()) {current_player_idx_ = 0;}
     //print out the board
     std::cout << *board_ << std::endl;
     //cop out to have ai control when an enemy is up
