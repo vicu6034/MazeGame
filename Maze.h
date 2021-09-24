@@ -6,14 +6,14 @@
 #include <vector>
 
 
-//helper for Maze to choose random names for enemies 
+//helpers that return random names and positions (respectively)
 std::vector<std::string> ChooseRandomNames(const int num_enemies);
 std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b);
 
 class Maze {
 public:
-//	// TODO: implement these functions
-	Maze(); // constructor
+//	
+	Maze(char c_size); // constructor
 //
 //	// initialize a new game, given one human player and 
 //	// a number of enemies to generate
@@ -24,26 +24,34 @@ public:
 //
 //	// Get the next player in turn order
 	Player * GetNextPlayer();
+
 	//kill all players
 	void KillAll();
+
+	//have an enemy take their turn 
+	//randomly move them to a valid pos
     void DoEnemyTurn(Player *p);
+
+	//determine what happens after player inputs where they want to move
 	void DoHumanTurnLogic(Player *p, Position &pos);
+
 //	// return true iff the human made it to the exit 
 //	// or the enemies ate all the humans
 	bool IsGameOver();
 //
-//	// You probably want to implement these functions as well
-//	// string info about the game's conditions after it is over
+//	// string info about the game's conditions after it is over (names and points)
 	std::string GenerateReport();
-//	friend std::ostream& operator<<(std::ostream& os, const Maze &m);
-//
+//	
+
 private:
-	Board *board_; // HINT: when you instantiate your board_, use the new Board() syntax
+	Board *board_; 
 	std::vector<Player*> players_;
+
 	int turn_count_;
 	int current_player_idx_;
-//
-//	// you may add more fields, as needed
+
+	char map_size_;
+//	char difficulty_;
 //
 };  // class Maze
 

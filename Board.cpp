@@ -27,6 +27,7 @@ std::string SquareTypeStringify(const SquareType sq) {
 
 /**
   Helper function to choose SquareType based on given chances
+  Add param for wall_chance 
   @return SquareType
 */
 SquareType ChooseRandomSquareType() {
@@ -39,13 +40,34 @@ SquareType ChooseRandomSquareType() {
   Board constructor
   Set the edges then fill rest of the squares based off given chances
   Use helper function to decide between Wall/Empty
+  @param char that represents what size the board should be
 */
-Board::Board() {
+Board::Board(char c) {
+    //set rows and cols based off the chosen map size
+    switch (c) {
+        case 's':
+            rows_ = 6;
+            cols_ = 6;
+            break;
+        case 'm':
+            rows_ = 8;
+            cols_ = 8;
+            break;
+        case 'l':
+            rows_ = 10;
+            cols_ = 10;
+            break;
+        default:
+            rows_ = 8;
+            cols_ = 8;
+            break;
+    }
+    arr_.resize(rows_,std::vector<SquareType>(cols_));
     //set edges as walls and random for the inside
     for (int i = 0; i < rows_; i++) {
         for (int j = 0; j < cols_; j++) {
             if ((i == 0) || (j == 0) || (i == (rows_-1)) || (j == (cols_-1))) {
-                arr_[i][j] = SquareType::Wall;
+                arr_[i][j] = (SquareType::Wall);
             } else {
                 arr_[i][j] = ChooseRandomSquareType();
             }

@@ -18,12 +18,13 @@ SquareType ChooseRandomSquareType();
 class Board {
 public:
 	//default constructor
-	Board();
+	Board(char c);
 	
 	// already implemented in line
-	int get_rows() const {return 8; }  // you should be able to change the size of your 
-	int get_cols() const {return 8; }  // board by changing these numbers and the numbers in the arr_ field
+	int get_rows() const {return rows_; }  // you should be able to change the size of your 
+	int get_cols() const {return cols_; }  // board by changing these numbers and the numbers in the arr_ field
 
+	std::vector<std::vector<SquareType>>& accBoard() {return arr_;}
 //	// return SquareValue of a given Position
 	SquareType get_square_value(Position pos) const {return arr_[pos.row][pos.col];}
 //
@@ -47,12 +48,12 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Board &b);
 
 private:
-	SquareType arr_[8][8];
+//	SquareType arr_[8][8]; //the map
+	std::vector<std::vector<SquareType>> arr_;
+
+	int rows_; 
+	int cols_;
 	
-	int rows_ = 8; // might be convenient but not necessary
-	int cols_ = 8;
-	
-	// you may add more fields, as needed
 };  // class Board
 
 #endif
