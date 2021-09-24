@@ -44,13 +44,14 @@ std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b
 }
 
 /**
-  Default maze constructor
+  Paramterized maze constructor
+  @param char that represents size the Board should be
 */
-Maze::Maze() {
+Maze::Maze(char c_size) {
     std::vector<Board*> boards;
-    boards.push_back(new Board());
+    boards.push_back(new Board(c_size));
     while (!boards.back()->IsSolvable()) {
-        boards.push_back(new Board);
+        boards.push_back(new Board(c_size));
     }
     board_ = boards.back();
     
@@ -64,7 +65,7 @@ Maze::Maze() {
   @param int number of enemies
 */
 void Maze::NewGame(Player *human, const int enemies) {
-    //set humans position to 1,1
+    //set humans position to 1,1 and add them to players
     Position starterpack;
     starterpack.row = 1;
     starterpack.col = 1;
