@@ -22,39 +22,14 @@ std::vector<std::string> ChooseRandomNames(const int num_enemies) {
 }
 
 /**
-  Helper function to choose random positions for ai
-  @param int num of enemies to be in the game
-  @param Board so we can look for empty tiles to place enemies on
-  @return vector of positions for the enemies
-*/
-std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b) {
-    std::vector<Position> ret_vec;
-    for (int i = 0; i < num_enemies; i++) {
-        Position pos, starter, exit;
-        int rand_row = 1 + (rand() % b.get_rows());
-        int rand_col = 1 + (rand() % b.get_cols());
-        pos.row = rand_row;
-        pos.col = pos.col;
-        while (!(b.get_square_value(pos) == SquareType::Empty) || (pos == starter) || (pos == exit)) {
-            rand_row = 1 + (rand() % (b.get_rows()-1));
-            rand_col = 1 + (rand() % (b.get_cols()-1));
-            pos.row = rand_row;
-            pos.col = rand_col;
-        }
-        ret_vec.push_back(pos);
-    }
-    return ret_vec;
-}
-
-/**
   Paramterized maze constructor
   @param char that represents size the Board should be
 */
 Maze::Maze(char c_size, char c_diff) {
     std::vector<Board*> boards;
-    boards.push_back(new Board(c_size));
+    boards.push_back(new Board(c_size, c_diff));
     while (!boards.back()->IsSolvable()) {
-        boards.push_back(new Board(c_size));
+        boards.push_back(new Board(c_size, c_diff));
     }
     board_ = boards.back();
     map_size_ = c_size;
@@ -78,7 +53,7 @@ void Maze::NewGame(Player *human) {
     //create number of enemies based off parameter
     //set their positions and ensure the board is updated
     std::vector<std::string> names = ChooseRandomNames(enemies);
-    std::vector<Position> enemy_positions = ChooseEnemyPositions(enemies, *board_);
+    std::vector<Position> enemy_positions = board_->ChooseEnemyPositions(enemies);
     for (int i = 0; i < enemies; i++) {
         Player *playa = new Player(names.at(i),false);
         playa->SetPosition(enemy_positions.at(i));
@@ -192,7 +167,7 @@ void Maze::TakeTurn(Player *p) {
 
 /**
   Method to return a ptr to the next player in the turn order
-  @return Player that is next in the turn order
+  @return Player* that is next in the turn order
 */
 Player* Maze::GetNextPlayer() {
     switch (players_.size()) {

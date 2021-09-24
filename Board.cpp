@@ -27,12 +27,28 @@ std::string SquareTypeStringify(const SquareType sq) {
 
 /**
   Helper function to choose SquareType based on given chances
-  Add param for wall_chance 
-  @return SquareType
+  Use input to determine how many woll be returned Wall/Empty
+  @return SquareType that is randomly selected
+  @param character that tells the difficulty
 */
-SquareType ChooseRandomSquareType() {
+SquareType ChooseRandomSquareType(char difficulty) {
+    int wall_chance;
+    switch (difficulty) {
+        case 'e':
+            wall_chance = 20;
+            break;
+        case 'm':
+            wall_chance = 30;
+            break;
+        case 'h':
+            wall_chance = 40;
+            break;
+        default:
+            wall_chance = 0;
+            break;
+    }
     int rando = rand() % 100;
-    if (rando < 20) {return SquareType::Wall;}
+    if (rando < wall_chance) {return SquareType::Wall;}
     else {return SquareType::Empty;}
 }
 
@@ -42,9 +58,9 @@ SquareType ChooseRandomSquareType() {
   Use helper function to decide between Wall/Empty
   @param char that represents what size the board should be
 */
-Board::Board(char c) {
+Board::Board(char c_size, char c_diff) {
     //set num rows and cols based off the chosen map size
-    switch (c) {
+    switch (c_size) {
         case 's':
             rows_ = 6;
             cols_ = 6;
@@ -69,7 +85,7 @@ Board::Board(char c) {
             if ((i == 0) || (j == 0) || (i == (rows_-1)) || (j == (cols_-1))) {
                 arr_[i][j] = (SquareType::Wall);
             } else {
-                arr_[i][j] = ChooseRandomSquareType();
+                arr_[i][j] = ChooseRandomSquareType(c_diff);
             }
         }
     }
@@ -86,7 +102,34 @@ Board::Board(char c) {
     arr_[1][1] = SquareType::Human;
     arr_[cols_-2][rows_-2] = SquareType::Exit;
 }
-
+/**
+  Helper function to choose random positions for ai
+  @param int num of enemies to be in the game
+  @param Board so we can look for empty tiles to place enemies on
+  @return vector of positions for the enemies
+*/
+std::vector<Position> Board::ChooseEnemyPositions(int num_enemies) {
+    std::vector<Position> ret_vec;
+    for (int i = 0; i < num_enemies; i++) {
+        Position pos, starter, exit;
+        starter.row = 1;
+        starter.col = 1;
+        exit.row = rows_-2;
+        exit.col = cols_-2;
+        int rand_row = 1 + ( std::rand() %  (rows_-1) );
+        int rand_col = 1 + ( std::rand() %  (cols_ -1) );
+        pos.row = rand_row;
+        pos.col = pos.col;
+        while (!(get_square_value(pos) == SquareType::Empty) || (pos == starter) || (pos == exit)) {
+            rand_row = 1 + ( std::rand() %  (rows_-1) );
+            rand_col = 1 + ( std::rand() %  (cols_ -1) );
+            pos.row = rand_row;
+            pos.col = rand_col;
+        }
+        ret_vec.push_back(pos);
+    }
+    return ret_vec;
+}
 /**
   Method to return all the valid Positions a Player can move to
   @param Player to check moves for
