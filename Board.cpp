@@ -18,8 +18,10 @@ std::string SquareTypeStringify(const SquareType sq) {
 			return "H";
 		case SquareType::Enemy:
 			return "X";
-		case SquareType::Treasure:
-			return "T";
+		case SquareType::Gold:
+			return "G";
+        case SquareType::Silver:
+            return "S";
 		default:
 			return "0";
 	}
@@ -94,8 +96,10 @@ Board::Board(char c_size, char c_diff) {
     for (int i = 1; i < rows_-1; i++) {
         for (int j = 1; j < cols_-1; j++) {
             int rando = rand()%100;
-            if (arr_[i][j] == SquareType::Empty && rando < 10) {
-                arr_[i][j] = SquareType::Treasure;
+            if (arr_[i][j] == SquareType::Empty && rando < 5) {
+                arr_[i][j] = SquareType::Gold;
+            } else if (arr_[i][j] == SquareType::Empty && rando < 15) {
+                arr_[i][j] = SquareType::Silver;
             }
         }
     }
@@ -175,9 +179,11 @@ bool Board::MovePlayer(Player *p, Position pos) {
     std::vector<Position> possibleMoves = GetMoves(p);
     for (int i = 0; i < possibleMoves.size(); i++) {
         if (possibleMoves.at(i) == pos) {
-            //give 100 points if move on a treasure tile
-            if (get_square_value(pos) == SquareType::Treasure) {
+            //give 100 points for Gold, 50 points for Silver
+            if (get_square_value(pos) == SquareType::Gold) {
                 p->ChangePoints(p->get_points() + 100);
+            } else if (get_square_value(pos) == SquareType::Silver) {
+                p->ChangePoints(p->get_points() + 50);
             }
             //set the tile where the player was to empty
             arr_[p->get_position().row][p->get_position().col] = SquareType::Empty;

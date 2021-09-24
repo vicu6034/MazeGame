@@ -5,12 +5,12 @@
 #include <string>
 #include <vector>
 
-// you may change this enum as you need
-enum class SquareType { Wall, Exit, Empty, Human, Enemy, Treasure };
+//enum to represent different types of Squares that can be on the Board
+enum class SquareType {Wall, Exit, Empty, Human, Enemy, Gold, Silver};
 
-// this function should return a string representation of a given SquareType
-// for example an ascii letter or an emoji
+//return a string that represents a SquareType
 std::string SquareTypeStringify(const SquareType sq);
+
 //helper for constructing a Board
 //use ran nums to return a random squaretype
 SquareType ChooseRandomSquareType();
@@ -20,11 +20,11 @@ public:
 	//default constructor
 	Board(char c_size, char c_diff);
 	
-	// already implemented in line
-	int get_rows() const {return rows_; }  // you should be able to change the size of your 
-	int get_cols() const {return cols_; }  // board by changing these numbers and the numbers in the arr_ field
+	//getters for row and col
+	int get_rows() const {return rows_;}
+	int get_cols() const {return cols_;} 
 
-	std::vector<std::vector<SquareType>>& accBoard() {return arr_;}
+//	std::vector<std::vector<SquareType>>& accBoard() {return arr_;}
 //	// return SquareValue of a given Position
 	SquareType get_square_value(Position pos) {return arr_[pos.row][pos.col];}
 //
@@ -49,12 +49,11 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Board &b);
 
 private:
-//	SquareType arr_[8][8]; //the map
+	//the map
 	std::vector<std::vector<SquareType>> arr_;
-
+	//num rows and num cols
 	int rows_; 
 	int cols_;
-	
 };  // class Board
 
 #endif
