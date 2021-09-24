@@ -116,16 +116,12 @@ Board::Board(char c_size, char c_diff) {
 std::vector<Position> Board::ChooseEnemyPositions(int num_enemies) {
     std::vector<Position> ret_vec;
     for (int i = 0; i < num_enemies; i++) {
-        Position pos;//, starter, exit;
-        //starter.row = 1;
-        //starter.col = 1;
-        //exit.row = rows_-2;
-        //exit.col = cols_-2;
+        Position pos;
         int rand_row = 1 + ( std::rand() %  (rows_-1) );
         int rand_col = 1 + ( std::rand() %  (cols_-1) );
         pos.row = rand_row;
         pos.col = pos.col;
-        while (get_square_value(pos) != SquareType::Empty) { //|| (pos == starter) || (pos == exit)) {
+        while (get_square_value(pos) != SquareType::Empty) {
             rand_row = 1 + ( std::rand() %  (rows_-1) );
             rand_col = 1 + ( std::rand() %  (cols_ -1) );
             pos.row = rand_row;
@@ -243,7 +239,6 @@ bool Board::IsSolvable() {
         starter.row = 1;
         starter.col = 1;
         q.push(starter);
-
         while (!q.empty()) {
             Position p = q.front();
             q.pop();
