@@ -13,11 +13,11 @@ std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b
 class Maze {
 public:
 //	
-	Maze(char c_size); // constructor
+	Maze(char c_size, char c_diff); // constructor
 //
 //	// initialize a new game, given one human player and 
 //	// a number of enemies to generate
-	void NewGame(Player *human, const int enemies);
+	void NewGame(Player *human);
 //
 //	// have the given Player take their turn
 	void TakeTurn(Player *p);
@@ -41,17 +41,17 @@ public:
 //
 //	// string info about the game's conditions after it is over (names and points)
 	std::string GenerateReport();
-//	
+//	//helper method to return how many enemies we should have based off both difficulty and size
+	int CalculateEnemies();
 
 private:
 	Board *board_; 
 	std::vector<Player*> players_;
 
-	int turn_count_;
 	int current_player_idx_;
-
+	
 	char map_size_;
-//	char difficulty_;
+	char difficulty_;
 //
 };  // class Maze
 

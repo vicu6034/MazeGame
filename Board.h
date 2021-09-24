@@ -18,7 +18,7 @@ SquareType ChooseRandomSquareType();
 class Board {
 public:
 	//default constructor
-	Board(char c);
+	Board(char c_size, char c_diff);
 	
 	// already implemented in line
 	int get_rows() const {return rows_; }  // you should be able to change the size of your 
@@ -26,11 +26,12 @@ public:
 
 	std::vector<std::vector<SquareType>>& accBoard() {return arr_;}
 //	// return SquareValue of a given Position
-	SquareType get_square_value(Position pos) const {return arr_[pos.row][pos.col];}
+	SquareType get_square_value(Position pos) {return arr_[pos.row][pos.col];}
 //
 //	// set the value at a Position to the given SquareType
 	void SetSquareValue(Position pos, SquareType value) {arr_[pos.row][pos.col] = value;}
 //
+	std::vector<Position> ChooseEnemyPositions(int num_enemies);
 //	// get the valid Positions that a Player could move to
 	std::vector<Position> GetMoves(Player *p);
 //

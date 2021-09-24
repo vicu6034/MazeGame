@@ -3,42 +3,25 @@
 #include <iostream>
 
 #include "Maze.h"
+
+/**
+  Helper function to normalize a string into just the lowercase version of the first letter
+  @param string to normalize
+  @return char that represents normalized version of string
+*/
+char NormalizeInput(std::string str) {return tolower(str[0]);}
+
 /**
   Helper function to choose random names for the ais
   @param int num of enemies to be in the game
   @return vector of strings that are names
 */
 std::vector<std::string> ChooseRandomNames(const int num_enemies) {
-    std::vector<std::string> names{"John","Alice","Bobby","Sydney","Bill","Sam","Ryan","Lily","Bailey","Michael"};
+    std::vector<std::string> names{"John","Alice","Bobby","Sydney","Bill","Sam","Ryan","Lily","Ali","Michael","Tori"};
     std::vector<std::string> ret_vec;
     for (int i = 0; i < num_enemies; i++) {
-        int rando = rand() % 10;
+        int rando = std::rand() % 10;
         ret_vec.push_back(names.at(rando));
-    }
-    return ret_vec;
-}
-
-/**
-  Helper function to choose random positions for ai
-  @param int num of enemies to be in the game
-  @param Board so we can look for empty tiles to place enemies on
-  @return vector of positions for the enemies
-*/
-std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b) {
-    std::vector<Position> ret_vec;
-    for (int i = 0; i < num_enemies; i++) {
-        Position pos, starter, exit;
-        int rand_row = 1 + (rand() % b.get_rows());
-        int rand_col = 1 + (rand() % b.get_cols());
-        pos.row = rand_row;
-        pos.col = pos.col;
-        while (!(b.get_square_value(pos) == SquareType::Empty) || (pos == starter) || (pos == exit)) {
-            rand_row = 1 + (rand() % (b.get_rows()-1));
-            rand_col = 1 + (rand() % (b.get_cols()-1));
-            pos.row = rand_row;
-            pos.col = rand_col;
-        }
-        ret_vec.push_back(pos);
     }
     return ret_vec;
 }
@@ -47,15 +30,15 @@ std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b
   Paramterized maze constructor
   @param char that represents size the Board should be
 */
-Maze::Maze(char c_size) {
+Maze::Maze(char c_size, char c_diff) {
     std::vector<Board*> boards;
-    boards.push_back(new Board(c_size));
+    boards.push_back(new Board(c_size, c_diff));
     while (!boards.back()->IsSolvable()) {
-        boards.push_back(new Board(c_size));
+        boards.push_back(new Board(c_size, c_diff));
     }
     board_ = boards.back();
-    
-    turn_count_ = 0;
+    map_size_ = c_size;
+    difficulty_ = c_diff;
     current_player_idx_ = 0;
 }
 
@@ -64,17 +47,18 @@ Maze::Maze(char c_size) {
   @param Player that is the human
   @param int number of enemies
 */
-void Maze::NewGame(Player *human, const int enemies) {
+void Maze::NewGame(Player *human) {
     //set humans position to 1,1 and add them to players
     Position starterpack;
     starterpack.row = 1;
     starterpack.col = 1;
     human->SetPosition(starterpack);
     players_.push_back(human);
+    int enemies = CalculateEnemies();
     //create number of enemies based off parameter
     //set their positions and ensure the board is updated
     std::vector<std::string> names = ChooseRandomNames(enemies);
-    std::vector<Position> enemy_positions = ChooseEnemyPositions(enemies, *board_);
+    std::vector<Position> enemy_positions = board_->ChooseEnemyPositions(enemies);
     for (int i = 0; i < enemies; i++) {
         Player *playa = new Player(names.at(i),false);
         playa->SetPosition(enemy_positions.at(i));
@@ -82,6 +66,7 @@ void Maze::NewGame(Player *human, const int enemies) {
         board_->SetSquareValue(enemy_positions.at(i), SquareType::Enemy);
     }
 }
+
 /**
   Method to kill all players
   force end the game
@@ -91,6 +76,7 @@ void Maze::KillAll() {
         players_.at(i)->Kill();
     }
 }
+
 /**
   Method to take the ais turn
   @param Player whos turn it is
@@ -98,16 +84,22 @@ void Maze::KillAll() {
 void Maze::DoEnemyTurn(Player *p) {
     std::cout << p->get_name() << "'s Turn (above)" << std::endl;
     std::vector<Position> possibles = board_->GetMoves(p);
-    if (possibles.size() == 0) {return;}
-    int rando = rand() % possibles.size();
-
-    if (board_->get_square_value(possibles.at(rando)) == SquareType::Human) {
-        std::cout << "An enemy has killed you!" << std::endl;
-        KillAll();
-    } else if ((board_->get_square_value(possibles.at(rando)) == SquareType::Enemy) || (board_->get_square_value(possibles.at(rando)) == SquareType::Exit)) {
-        //do nothing if an enemy moves onto an enemy or the exit (they should never try to go into a wall)
-    } else {
-        board_->MovePlayer(p,possibles.at(rando));
+    //if theres no moves, do nothing
+    //else do the enemies turn
+    if (possibles.empty()) {return;}
+    else {
+        int rando = rand() % possibles.size();
+        if (board_->get_square_value(possibles.at(rando)) == SquareType::Human) {
+            //if ai moves onto a human, kill the human
+            std::cout << "An enemy has killed you!" << std::endl;
+            KillAll();
+        } else if ((board_->get_square_value(possibles.at(rando)) == SquareType::Enemy) || (board_->get_square_value(possibles.at(rando)) == SquareType::Exit)) {
+            //do nothing if an enemy moves onto an enemy or the exit (they should never try to go into a wall)
+        } else {
+            //a normal move
+            board_->MovePlayer(p,possibles.at(rando));
+        }
+        return;
     }
 }
 
@@ -133,13 +125,11 @@ void Maze::DoHumanTurnLogic(Player *p, Position &pos) {
   @param Player whos turn it is
 */
 void Maze::TakeTurn(Player *p) {
-    if (p->is_human()) {current_player_idx_ = 0;}
     //print out the board
     std::cout << *board_ << std::endl;
     //cop out to have ai control when an enemy is up
     if (!p->is_human()) {
         DoEnemyTurn(p);
-        turn_count_++;
         return;
     }
     //show player the valid directions they can move
@@ -164,17 +154,17 @@ void Maze::TakeTurn(Player *p) {
     std::string choice;
     std::cin >> choice;
 
-    //ugly please fix
-    if ((choice == "N") || (choice == "n") || (choice == "north") || (choice == "North") || (choice == "NORTH")) {
+   char c = NormalizeInput(choice);
+    if (c == 'n') {
         //cases when the player goes north
         DoHumanTurnLogic(p,north);
-    } else if ((choice == "E") || (choice == "e") || (choice == "east") || (choice == "East") || (choice == "EAST")) {
+    } else if (c == 'e') {
         //cases when the player goes east
         DoHumanTurnLogic(p,east);
-    } else if ((choice == "S") || (choice == "s") || (choice == "south") || (choice == "South") || (choice == "SOUTH")) {
+    } else if (c == 's') {
         //cases when the player goes south
         DoHumanTurnLogic(p,south);
-    } else if ((choice == "W") || (choice == "w") || (choice == "west") || (choice == "West") || (choice == "WEST")) {
+    } else if (c == 'w') {
         //cases when the player goes west
         DoHumanTurnLogic(p,west);
     } else {
@@ -182,32 +172,67 @@ void Maze::TakeTurn(Player *p) {
         //alert the player they've lost their turn
         std::cout << "Invalid Input, skipping turn" << std::endl;
     }
-    turn_count_++;
 }
 
 /**
   Method to return a ptr to the next player in the turn order
-  @return Player that is next in the turn order
+  @return Player* that is next in the turn order
 */
 Player* Maze::GetNextPlayer() {
-    if (current_player_idx_ == 0) {
-        current_player_idx_++;
-        return (players_.at(current_player_idx_));
-    } else if (current_player_idx_ == 1) {
-        current_player_idx_++;
-        return (players_.at(current_player_idx_));
-    } else if ((current_player_idx_ == 2) && (players_.size() == 3)) {
-        current_player_idx_ = 0;
-        return players_.at(current_player_idx_);
-    } else if ((current_player_idx_ == 2) && (players_.size() == 4)) {
-        current_player_idx_++;
-        return players_.at(current_player_idx_);
-    } else if (current_player_idx_ == 3) {
-        current_player_idx_ = 0;
-        return players_.at(current_player_idx_);
-    } else {
-        std::cout << std::endl << "PROBLEMS - GETNEXTPLAYER() - MAZE.CPP" << std::endl;
-        return nullptr;
+    switch (players_.size()) {
+        case 2:
+            if (current_player_idx_ == 0) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 1) {
+                current_player_idx_ = 0;
+                return (players_.at(current_player_idx_));
+            }
+        case 3:
+            if (current_player_idx_ == 0) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 1) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 2) {
+                current_player_idx_ = 0;
+                return (players_.at(current_player_idx_));
+            }
+        case 4:
+            if (current_player_idx_ == 0) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 1) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 2) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 3) {
+                current_player_idx_ = 0;
+                return (players_.at(current_player_idx_));
+            }
+        case 5:
+            if (current_player_idx_ == 0) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 1) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 2) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 3) {
+                current_player_idx_++;
+                return (players_.at(current_player_idx_));
+            } else if (current_player_idx_ == 4) {
+                current_player_idx_ = 0;
+                return (players_.at(current_player_idx_));
+            }
+        default:
+            std::cout << "THIS SHOULDNT HAPPEN - GETNEXTPLAYER()" << std::endl;
+            return nullptr;
     }
 }
 
@@ -252,4 +277,21 @@ std::string Maze::GenerateReport() {
          s += "\n";
     }
     return s;
+}
+
+/**
+  Helper method to calculate how many enemies should be in the game
+  Based off private difficulty and size members
+  @return int that represents how many enemies to be in the game
+*/
+int Maze::CalculateEnemies() {
+    if ((map_size_ == 's') && (difficulty_ == 'e')) {
+        return 1;
+    } else if (((map_size_ == 's') && (difficulty_ != 'e')) || ((map_size_ == 'm') && (difficulty_ == 'e'))){
+        return 2;
+    } else if (((map_size_ == 'm') && (difficulty_ != 'e')) || ((map_size_ == 'l') && (difficulty_ != 'h'))) {
+        return 3;
+    } else {
+        return 4;
+    }
 }
