@@ -43,7 +43,7 @@ SquareType ChooseRandomSquareType() {
   @param char that represents what size the board should be
 */
 Board::Board(char c) {
-    //set rows and cols based off the chosen map size
+    //set num rows and cols based off the chosen map size
     switch (c) {
         case 's':
             rows_ = 6;

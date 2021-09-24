@@ -3,9 +3,7 @@
 
 #include <iostream>
 
-char NormalizeInput(std::string str) {
-    return tolower(str[0]);
-}
+char NormalizeMainInput(std::string str) {return tolower(str[0]);}
 
 int main() {
     //seed random nums to be used throughout
@@ -20,13 +18,14 @@ int main() {
     std::cout << "What size board would you like to play on, " << name << "?" << std::endl;
     std::cout << "Please choose small, medium, or large (s, m, l) ";
     std::cin >> board_size;
-    char c_size = NormalizeInput(board_size);
+    char c_size = NormalizeMainInput(board_size);
     //prompt player for a difficulty to play with
- //   std::string difficulty;
- //   std::cout << "What difficulty would you like to play on, " << name << "?" << std::endl;
- //   std::cout << "Please choose easy, medium, or hard (e, m, h) ";
- //   std::cin >> difficulty;
- //   char c_diff = NormalizeInput(difficulty);
+    std::string difficulty;
+    std::cout << "What difficulty would you like to play on, " << name << "?" << std::endl;
+    std::cout << "Please choose easy, medium, or hard (e, m, h) ";
+    std::cin >> difficulty;
+    char c_diff = NormalizeMainInput(difficulty);
+    std::cout << c_diff << std::endl;
     //print out a key
     std::cout << std::endl << "KEY: " << std::endl;
     std::cout << "    EMPTY SPACES ARE 'OPEN'" << std::endl;
@@ -37,8 +36,9 @@ int main() {
     std::cout << "    E = End (WIN)" << std::endl << std::endl;
     //create the maze and human player
     Player *myPlayer = new Player(name, true);
-    Maze *myMaze = new Maze(c_size);
-    myMaze->NewGame(myPlayer,2);
+    Maze *myMaze = new Maze(c_size, c_diff);
+    
+    myMaze->NewGame(myPlayer);
     //have the player go then use nextplayer to loop until the games over 
     myMaze->TakeTurn(myPlayer);
     while (!myMaze->IsGameOver()) {
@@ -46,4 +46,5 @@ int main() {
     }
     //show how many points the players got
     std::cout << myMaze->GenerateReport();
+
 }
