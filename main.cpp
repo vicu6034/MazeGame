@@ -12,26 +12,36 @@ char NormalizeMainInput(std::string str) {return tolower(str[0]);}
 
 int main() {
     bool play_again = true;
+    //greet the player and prompt for name 
+    std::string name;
+    std::cout << "HI! Welcome to my Maze!" << std::endl;
+    std::cout << "Please input your name to play: ";
+    std::cin >> name;
     while (play_again) {
       //seed random nums to be used throughout
-      srand(time(0));
-      //greet the player and prompt for name 
-      std::string name;
-      std::cout << "HI! Welcome to my Maze!" << std::endl;
-      std::cout << "Please input your name to play: ";
-      std::cin >> name;
+      srand(time(0));      
       //prompt player for a size board to play on
       std::string board_size;
       std::cout << "What size board would you like to play on, " << name << "?" << std::endl;
       std::cout << "Please choose small, medium, or large (s, m, l): ";
       std::cin >> board_size;
       char c_size = NormalizeMainInput(board_size);
+      while (!(c_size == 's' || c_size == 'm' ||c_size== 'l')) {
+        std::cout << "You have entered an invalid input for the size of the board. Please try again: ";
+        std::cin >> board_size;
+        c_size = NormalizeMainInput(board_size);
+      }
       //prompt player for a difficulty to play with
       std::string difficulty;
       std::cout << "What difficulty would you like to play on, " << name << "?" << std::endl;
       std::cout << "Please choose easy, medium, or hard (e, m, h): ";
       std::cin >> difficulty;
       char c_diff = NormalizeMainInput(difficulty);
+      while (!(c_diff == 'e' || c_diff == 'm' ||c_diff == 'h')) {
+        std::cout << "You have entered an invalid input for the difficulty of the game. Please try again: ";
+        std::cin >> difficulty;
+        c_diff = NormalizeMainInput(difficulty);
+      }
       //print out a key
       std::cout << std::endl << "KEY: " << std::endl;
       std::cout << "    EMPTY SPACES ARE 'OPEN'" << std::endl;
@@ -52,10 +62,16 @@ int main() {
       }
       //show how many points the players got
       std::cout << myMaze->GenerateReport();
+      //prompt player with option to play again
       std::string play_again_input;
       std::cout << std::endl << "Would you like to play again? (Y/N): ";
       std::cin >> play_again_input;
       char p_a = NormalizeMainInput(play_again_input);
+      while (!(p_a == 'y' || p_a == 'n')) {
+        std::cout << "You have entered an invalid input. Please try again: ";
+        std::cin >> play_again_input;
+        p_a = NormalizeMainInput(play_again_input);
+      }
       if (p_a == 'n') {
         play_again = false;
       }
