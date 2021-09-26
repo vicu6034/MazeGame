@@ -107,6 +107,7 @@ Board::Board(char c_size, char c_diff) {
     arr_[1][1] = SquareType::Human;
     arr_[cols_-2][rows_-2] = SquareType::Exit;
 }
+
 /**
   Helper function to choose random positions for ai
   @param int num of enemies to be in the game
@@ -131,6 +132,7 @@ std::vector<Position> Board::ChooseEnemyPositions(int num_enemies) {
     }
     return ret_vec;
 }
+
 /**
   Method to return all the valid Positions a Player can move to
   @param Player to check moves for
