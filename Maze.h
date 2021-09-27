@@ -9,6 +9,7 @@
 //helpers that return random names and positions (respectively)
 std::vector<std::string> ChooseRandomNames(const int num_enemies);
 std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b);
+char NormalizeInput(std::string str);
 
 class Maze {
 public:

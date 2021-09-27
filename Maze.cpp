@@ -5,13 +5,6 @@
 #include "Maze.h"
 
 /**
-  Helper function to normalize a string into just the lowercase version of the first letter
-  @param string to normalize
-  @return char that represents normalized version of string
-*/
-char NormalizeInput(std::string str) {return tolower(str[0]);}
-
-/**
   Helper function to choose random names for the ais
   @param int num of enemies to be in the game
   @return vector of strings that are names
