@@ -8,7 +8,7 @@
   @param string to normalize
   @return char that represents normalized version of string
 */
-char NormalizeMainInput(std::string str) {return tolower(str[0]);}
+char NormalizeInput(std::string str) {return tolower(str[0]);}
 
 int main() {
     bool play_again = true;
@@ -25,22 +25,22 @@ int main() {
       std::cout << "What size board would you like to play on, " << name << "?" << std::endl;
       std::cout << "Please choose small, medium, or large (s, m, l): ";
       std::cin >> board_size;
-      char c_size = NormalizeMainInput(board_size);
+      char c_size = NormalizeInput(board_size);
       while (!(c_size == 's' || c_size == 'm' ||c_size== 'l')) {
         std::cout << "You have entered an invalid input for the size of the board. Please try again: ";
         std::cin >> board_size;
-        c_size = NormalizeMainInput(board_size);
+        c_size = NormalizeInput(board_size);
       }
       //prompt player for a difficulty to play with
       std::string difficulty;
       std::cout << "What difficulty would you like to play on, " << name << "?" << std::endl;
       std::cout << "Please choose easy, medium, or hard (e, m, h): ";
       std::cin >> difficulty;
-      char c_diff = NormalizeMainInput(difficulty);
+      char c_diff = NormalizeInput(difficulty);
       while (!(c_diff == 'e' || c_diff == 'm' ||c_diff == 'h')) {
         std::cout << "You have entered an invalid input for the difficulty of the game. Please try again: ";
         std::cin >> difficulty;
-        c_diff = NormalizeMainInput(difficulty);
+        c_diff = NormalizeInput(difficulty);
       }
       //print out a key
       std::cout << std::endl << "KEY: " << std::endl;
@@ -66,11 +66,11 @@ int main() {
       std::string play_again_input;
       std::cout << std::endl << "Would you like to play again? (Y/N): ";
       std::cin >> play_again_input;
-      char p_a = NormalizeMainInput(play_again_input);
+      char p_a = NormalizeInput(play_again_input);
       while (!(p_a == 'y' || p_a == 'n')) {
         std::cout << "You have entered an invalid input. Please try again: ";
         std::cin >> play_again_input;
-        p_a = NormalizeMainInput(play_again_input);
+        p_a = NormalizeInput(play_again_input);
       }
       if (p_a == 'n') {
         play_again = false;
