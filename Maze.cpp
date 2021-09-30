@@ -52,8 +52,9 @@ void Maze::NewGame(Player *human) {
     //set their positions and ensure the board is updated
     std::vector<std::string> names = ChooseRandomNames(enemies);
     std::vector<Position> enemy_positions = board_->ChooseEnemyPositions(enemies);
+    std::vector<std::string> npc_types = ChooseNpcTypes(enemies);
     for (int i = 0; i < enemies; i++) {
-        Player *playa = new Player(names.at(i),false);
+        Player *playa = new Player(names.at(i), npc_types.at(i), false);
         playa->SetPosition(enemy_positions.at(i));
         players_.push_back(playa);
         board_->SetSquareValue(enemy_positions.at(i), SquareType::Enemy);
@@ -282,9 +283,68 @@ int Maze::CalculateEnemies() {
         return 1;
     } else if (((map_size_ == 's') && (difficulty_ != 'e')) || ((map_size_ == 'm') && (difficulty_ == 'e'))){
         return 2;
-    } else if (((map_size_ == 'm') && (difficulty_ != 'e')) || ((map_size_ == 'l') && (difficulty_ != 'h'))) {
+    } else if (((map_size_ == 'm') && (difficulty_ != 'e')) || ((map_size_ == 'l') && (difficulty_ == 'e'))) {
         return 3;
     } else {
         return 4;
     }
+}
+
+/**
+  Helper function to choose random names for the ais
+  @param int num of enemies to be in the game
+  @return vector of strings that are names
+*/
+std::vector<std::string> Maze::ChooseNpcTypes(const int num_enemies) {
+    //Random NPCs will move randomly
+    //Killer NPCs will hunt down the player
+    //Seeker NPCs will try to collect treasure
+    std::vector<std::string> types{"Random","Killer","Seeker"};
+    std::vector<std::string> ret_vec;
+    //hardcode in what npc types we want depending on the map size and difficulty
+    switch (map_size_) {
+        case 's':
+            if (difficulty_ == 'e') {
+                ret_vec.push_back(types[0]);
+            } else if (difficulty_ == 'm') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[2]);
+            } else {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[1]);
+            }
+            break;
+        case 'm':
+            if (difficulty_ == 'e') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[0]);
+            } else if (difficulty_ == 'm') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[2]);
+            } else {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[2]);
+            }
+            break;
+        case 'l':
+            if (difficulty_ == 'e') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[2]);
+            } else if (difficulty_ == 'm') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[2]);
+                ret_vec.push_back(types[2]);
+            } else {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[2]);
+            }
+            break;
+    }
+    return ret_vec;
 }

@@ -44,6 +44,8 @@ public:
 	std::string GenerateReport();
 //	//helper method to return how many enemies we should have based off both difficulty and size
 	int CalculateEnemies();
+//  //helper method to return a vector of strings representing the types of npcs we need
+	std::vector<std::string> ChooseNpcTypes(int num_enemies);
 
 private:
 	Board *board_; 

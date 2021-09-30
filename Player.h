@@ -16,15 +16,16 @@ struct Position {
 class Player {
 public:
 	// paramterized constructor
-	Player(const std::string name, const bool is_human) : name_(name), is_human_(is_human) {} 
+	Player(const std::string name, const std::string npc_type ,const bool is_human) : name_(name), npc_type_(npc_type), is_human_(is_human) {} 
 	
 	// getter functions
 	std::string get_name() const {return name_; }  // inline member function
+	std::string get_npc_type() const {return npc_type_; }  // inline member function
 	int get_points() const {return points_; }  // inline member function
 	Position get_position() const {return pos_; }  // inline member function
 	bool is_human() const {return is_human_; }  // inline member function
 
-	//'kill'  all players (ensure humans dead)
+	//method to 'kill' the player (make them dead)
 	void Kill() {is_human_ = false;}
 
 	//set new amount of points for this player
@@ -43,6 +44,7 @@ public:
 
 private:
 	std::string name_;
+	std::string npc_type_;
 	int points_ = 0;
 	Position pos_;
 	bool is_human_;
