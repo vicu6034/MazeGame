@@ -8,7 +8,7 @@
   @param string to normalize
   @return char that represents normalized version of string
 */
-char NormalizeInput(std::string str) {return tolower(str[0]);}
+char NormalizeInput(const std::string str) {return tolower(str[0]);}
 
 int main() {
     bool play_again = true;

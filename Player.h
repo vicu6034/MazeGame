@@ -15,8 +15,8 @@ struct Position {
 
 class Player {
 public:
-	// paramterized constructor
-	Player(const std::string name, const std::string npc_type ,const bool is_human) : name_(name), npc_type_(npc_type), is_human_(is_human) {} 
+	// paramterized constructor using initialization list
+	Player(const std::string name, const std::string npc_type, const bool is_human) : name_(name), npc_type_(npc_type), is_human_(is_human) {} 
 	
 	// getter functions
 	std::string get_name() const {return name_; }  // inline member function
@@ -39,15 +39,13 @@ public:
 	std::string ToRelativePosition(Position other);
 //	// Convert this player to a string representation of their name and points
 	std::string Stringify() {return name_ + std::to_string(points_);}
-//
-//	// You may add other functions as needed/wanted
 
 private:
 	std::string name_;
 	std::string npc_type_;
-	int points_ = 0;
 	Position pos_;
 	bool is_human_;
+	int points_ = 0;
 
 }; // class Player
 

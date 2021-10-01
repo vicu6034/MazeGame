@@ -23,7 +23,7 @@ std::vector<std::string> ChooseRandomNames(const int num_enemies) {
   Paramterized maze constructor
   @param char that represents size the Board should be
 */
-Maze::Maze(char c_size, char c_diff) {
+Maze::Maze(const char c_size, const char c_diff) {
     std::vector<Board*> boards;
     boards.push_back(new Board(c_size, c_diff));
     while (!boards.back()->IsSolvable()) {
@@ -52,7 +52,7 @@ void Maze::NewGame(Player *human) {
     //set their positions and ensure the board is updated
     std::vector<std::string> names = ChooseRandomNames(enemies);
     std::vector<Position> enemy_positions = board_->ChooseEnemyPositions(enemies);
-    std::vector<std::string> npc_types = ChooseNpcTypes(enemies);
+    std::vector<std::string> npc_types = ChooseNpcTypes();
     for (int i = 0; i < enemies; i++) {
         Player *playa = new Player(names.at(i), npc_types.at(i), false);
         playa->SetPosition(enemy_positions.at(i));
@@ -124,47 +124,46 @@ void Maze::TakeTurn(Player *p) {
     //cop out to have ai control when an enemy is up
     if (!p->is_human()) {
         DoEnemyTurn(p);
-        return;
-    }
-    //show player the valid directions they can move
-    std::cout << "Available moves: ";
-    std::vector<Position> moves = board_->GetMoves(p);
-    for (int i = 0; i < moves.size(); i++) {
-        std::cout << p->ToRelativePosition(moves.at(i)) << " ";
-    }
-    //get all the possible inputs
-    Position pos = p->get_position();
-    Position north, east, south, west;
-    north.row = pos.row - 1;
-    north.col = pos.col;
-    east.row = pos.row;
-    east.col = pos.col + 1;
-    south.row = pos.row + 1;
-    south.col = pos.col;
-    west.row = pos.row;
-    west.col = pos.col - 1;
-    //prompt player for input
-    std::cout << std::endl << p->get_name() << "'s choice (Please input N , W , S , or E): ";
-    std::string choice;
-    std::cin >> choice;
-
-   char c = NormalizeInput(choice);
-    if (c == 'n') {
-        //cases when the player goes north
-        DoHumanTurnLogic(p,north);
-    } else if (c == 'e') {
-        //cases when the player goes east
-        DoHumanTurnLogic(p,east);
-    } else if (c == 's') {
-        //cases when the player goes south
-        DoHumanTurnLogic(p,south);
-    } else if (c == 'w') {
-        //cases when the player goes west
-        DoHumanTurnLogic(p,west);
     } else {
-        //else theres an invalid input
-        //alert the player they've lost their turn
-        std::cout << "Invalid Input, skipping turn" << std::endl;
+        //show player the valid directions they can move
+        std::cout << "Available moves: ";
+        std::vector<Position> moves = board_->GetMoves(p);
+        for (int i = 0; i < moves.size(); i++) {
+            std::cout << p->ToRelativePosition(moves.at(i)) << " ";
+        }
+        //get all the possible inputs
+        Position pos = p->get_position();
+        Position north, east, south, west;
+        north.row = pos.row - 1;
+        north.col = pos.col;
+        east.row = pos.row;
+        east.col = pos.col + 1;
+        south.row = pos.row + 1;
+        south.col = pos.col;
+        west.row = pos.row;
+        west.col = pos.col - 1;
+        //prompt player for input
+        std::cout << std::endl << p->get_name() << "'s choice (Please input N , W , S , or E): ";
+        std::string choice;
+        std::cin >> choice;
+        char c = NormalizeInput(choice);
+        if (c == 'n') {
+            //cases when the player goes north
+            DoHumanTurnLogic(p,north);
+        } else if (c == 'e') {
+            //cases when the player goes east
+            DoHumanTurnLogic(p,east);
+        } else if (c == 's') {
+            //cases when the player goes south
+            DoHumanTurnLogic(p,south);
+        } else if (c == 'w') {
+            //cases when the player goes west
+            DoHumanTurnLogic(p,west);
+        } else {
+            //else theres an invalid input
+            //alert the player they've lost their turn
+            std::cout << "Invalid Input, skipping turn" << std::endl;
+        }
     }
 }
 
@@ -295,7 +294,7 @@ int Maze::CalculateEnemies() {
   @param int num of enemies to be in the game
   @return vector of strings that are names
 */
-std::vector<std::string> Maze::ChooseNpcTypes(const int num_enemies) {
+std::vector<std::string> Maze::ChooseNpcTypes() {
     //Random NPCs will move randomly
     //Killer NPCs will hunt down the player
     //Seeker NPCs will try to collect treasure
@@ -306,45 +305,51 @@ std::vector<std::string> Maze::ChooseNpcTypes(const int num_enemies) {
         case 's':
             if (difficulty_ == 'e') {
                 ret_vec.push_back(types[0]);
+                break;
             } else if (difficulty_ == 'm') {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[2]);
+                break;
             } else {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[1]);
+                break;
             }
-            break;
         case 'm':
             if (difficulty_ == 'e') {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[0]);
+                break;
             } else if (difficulty_ == 'm') {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[2]);
+                break;
             } else {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[1]);
                 ret_vec.push_back(types[2]);
+                break;
             }
-            break;
         case 'l':
             if (difficulty_ == 'e') {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[2]);
+                break;
             } else if (difficulty_ == 'm') {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[1]);
                 ret_vec.push_back(types[2]);
                 ret_vec.push_back(types[2]);
+                break;
             } else {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[1]);
                 ret_vec.push_back(types[1]);
                 ret_vec.push_back(types[2]);
+                break;
             }
-            break;
     }
     return ret_vec;
 }

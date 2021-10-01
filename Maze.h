@@ -9,12 +9,12 @@
 //helpers that return random names and positions (respectively)
 std::vector<std::string> ChooseRandomNames(const int num_enemies);
 std::vector<Position> ChooseEnemyPositions(const int num_enemies, const Board &b);
-char NormalizeInput(std::string str);
+char NormalizeInput(const std::string str);
 
 class Maze {
 public:
 //	
-	Maze(char c_size, char c_diff); // constructor
+	Maze(const char c_size, const char c_diff); // constructor
 //
 //	// initialize a new game, given one human player and 
 //	// a number of enemies to generate
@@ -45,7 +45,7 @@ public:
 //	//helper method to return how many enemies we should have based off both difficulty and size
 	int CalculateEnemies();
 //  //helper method to return a vector of strings representing the types of npcs we need
-	std::vector<std::string> ChooseNpcTypes(int num_enemies);
+	std::vector<std::string> ChooseNpcTypes();
 
 private:
 	Board *board_; 
