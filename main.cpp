@@ -52,7 +52,8 @@ int main() {
       std::cout << "    S = Silver (50 POINTS)" << std::endl;
       std::cout << "    E = End (WIN)" << std::endl << std::endl;
       //create the maze and human player
-      Player *myPlayer = new Player(name, "Human", true);
+      Position starter = {1,1};
+      Player *myPlayer = new Player(name, "Human", starter, true);
       Maze *myMaze = new Maze(c_size, c_diff);
       myMaze->NewGame(myPlayer);
       //have the player go then use nextplayer to loop until the games over (main game loop)

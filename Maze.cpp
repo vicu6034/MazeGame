@@ -42,9 +42,7 @@ Maze::Maze(const char c_size, const char c_diff) {
 */
 void Maze::NewGame(Player *human) {
     //set humans position to 1,1 and add them to players
-    Position starterpack;
-    starterpack.row = 1;
-    starterpack.col = 1;
+    Position starterpack = {1,1};
     human->SetPosition(starterpack);
     players_.push_back(human);
     int enemies = CalculateEnemies();
@@ -54,8 +52,7 @@ void Maze::NewGame(Player *human) {
     std::vector<Position> enemy_positions = board_->ChooseEnemyPositions(enemies);
     std::vector<std::string> npc_types = ChooseNpcTypes();
     for (int i = 0; i < enemies; i++) {
-        Player *playa = new Player(names.at(i), npc_types.at(i), false);
-        playa->SetPosition(enemy_positions.at(i));
+        Player *playa = new Player(names.at(i), npc_types.at(i), enemy_positions.at(i), false);
         players_.push_back(playa);
         board_->SetSquareValue(enemy_positions.at(i), SquareType::Enemy);
     }
@@ -80,37 +77,66 @@ void Maze::DoEnemyTurn(Player *p) {
     std::vector<Position> possibles = board_->GetMoves(p);
     //if theres no moves, do nothing
     //else do the enemies turn
-    if (possibles.empty()) {return;}
+    if (possibles.empty()) {}
     else {
-        int rando = rand() % possibles.size();
-        if (board_->get_square_value(possibles.at(rando)) == SquareType::Human) {
-            //if ai moves onto a human, kill the human
-            std::cout << "An enemy has killed you!" << std::endl;
-            KillAll();
-        } else if ((board_->get_square_value(possibles.at(rando)) == SquareType::Enemy) || (board_->get_square_value(possibles.at(rando)) == SquareType::Exit)) {
-            //do nothing if an enemy moves onto an enemy or the exit (they should never try to go into a wall)
+        if (p->get_npc_type() == "Random") {
+            int rando = rand() % possibles.size();
+            DoTurnLogic(p, possibles.at(rando));
+        } else if (p->get_npc_type() == "Killer") {
+            if (board_->PathToTypeExists(p, SquareType::Human)) {
+                std::vector<Position*> path = board_->findPath(p, board_->ClosestOfType(p,SquareType::Human));
+                Position pos = *path.at(1);
+                DoTurnLogic(p, pos);
+            } else {
+                int rando = rand() % possibles.size();
+                DoTurnLogic(p, possibles.at(rando));
+            }
+        } else if (p->get_npc_type() == "Seeker") {
+            if (board_->PathToTypeExists(p, SquareType::Gold)) {
+                std::vector<Position*> path = board_->findPath(p, board_->ClosestOfType(p,SquareType::Gold));
+                Position pos = *path.at(1);
+                DoTurnLogic(p, pos);
+            } else if (board_->PathToTypeExists(p, SquareType::Silver)) {
+                std::vector<Position*> path = board_->findPath(p, board_->ClosestOfType(p,SquareType::Silver));
+                Position pos = *path.at(1);
+                DoTurnLogic(p, pos);
+            } else {
+                int rando = rand() % possibles.size();
+                DoTurnLogic(p, possibles.at(rando));
+            }
         } else {
-            //a normal move
-            board_->MovePlayer(p,possibles.at(rando));
+            std::cout << "Problem with npc_type in DoEnemyTurn" << std::endl;
         }
-        return;
     }
 }
 
 /**
-  Method to compute what happens after the player chooses their direction
+  Method to compute what happens after a player chooses their direction
   @param Player whos turn it is
   @param Position they would like to move to
 */
-void Maze::DoHumanTurnLogic(Player *p, Position &pos) {
-     if (board_->get_square_value(pos) == SquareType::Wall) {
-        //the case where a player runs into a wall, do nothing
-    } else if (board_->get_square_value(pos) == SquareType::Enemy) {
-        //the case where a human runs into an ai, kill the human
-        p->Kill();
+void Maze::DoTurnLogic(Player *p, Position &pos) {
+    if (p->is_human()) {
+        if (board_->get_square_value(pos) == SquareType::Wall) {
+            //the case where a player runs into a wall, do nothing
+        } else if (board_->get_square_value(pos) == SquareType::Enemy) {
+            //the case where a human runs into an ai, kill the human
+            p->Kill();
+        } else {
+            //the case where theres a valid move, move the player
+            board_->MovePlayer(p, pos);
+        }
     } else {
-        //the case where theres a valid move, move the player
-        board_->MovePlayer(p, pos);
+        if (board_->get_square_value(pos) == SquareType::Human) {
+            //if ai moves onto a human, kill the human
+            std::cout << "An enemy has killed you!" << std::endl;
+            KillAll();
+        } else if ((board_->get_square_value(pos) == SquareType::Enemy) || (board_->get_square_value(pos) == SquareType::Exit)) {
+            //do nothing if an enemy moves onto an enemy or the exit (they should never try to go into a wall)
+        } else {
+            //a normal move
+            board_->MovePlayer(p, pos);
+        }
     }
 }
 
@@ -121,7 +147,7 @@ void Maze::DoHumanTurnLogic(Player *p, Position &pos) {
 void Maze::TakeTurn(Player *p) {
     //print out the board
     std::cout << *board_ << std::endl;
-    //cop out to have ai control when an enemy is up
+    //have ai control when an enemy is up
     if (!p->is_human()) {
         DoEnemyTurn(p);
     } else {
@@ -133,15 +159,10 @@ void Maze::TakeTurn(Player *p) {
         }
         //get all the possible inputs
         Position pos = p->get_position();
-        Position north, east, south, west;
-        north.row = pos.row - 1;
-        north.col = pos.col;
-        east.row = pos.row;
-        east.col = pos.col + 1;
-        south.row = pos.row + 1;
-        south.col = pos.col;
-        west.row = pos.row;
-        west.col = pos.col - 1;
+        Position north = {pos.row - 1, pos.col};
+        Position east = {pos.row, pos.col + 1};
+        Position south = {pos.row + 1, pos.col};
+        Position west = {pos.row, pos.col - 1};
         //prompt player for input
         std::cout << std::endl << p->get_name() << "'s choice (Please input N , W , S , or E): ";
         std::string choice;
@@ -149,16 +170,16 @@ void Maze::TakeTurn(Player *p) {
         char c = NormalizeInput(choice);
         if (c == 'n') {
             //cases when the player goes north
-            DoHumanTurnLogic(p,north);
+            DoTurnLogic(p,north);
         } else if (c == 'e') {
             //cases when the player goes east
-            DoHumanTurnLogic(p,east);
+            DoTurnLogic(p,east);
         } else if (c == 's') {
             //cases when the player goes south
-            DoHumanTurnLogic(p,south);
+            DoTurnLogic(p,south);
         } else if (c == 'w') {
             //cases when the player goes west
-            DoHumanTurnLogic(p,west);
+            DoTurnLogic(p,west);
         } else {
             //else theres an invalid input
             //alert the player they've lost their turn

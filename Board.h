@@ -45,7 +45,16 @@ public:
 	bool IsValid(const Position &pos) {return (arr_[pos.row][pos.col] != SquareType::Wall);};
 //  //  Return wether the current Board is solvable
 	bool IsSolvable();
-//	// You probably want to implement this
+	bool TypeExists(SquareType type);
+	bool PathToTypeExists(Player *p, SquareType type);
+	Position ClosestOfType(Player *p, SquareType type);
+
+	void findPath(Position* pos, std::vector<Position*>);
+	std::vector<Position*> findPath(Player *p, Position pos);
+//  //method to calculate a path from a player to the closest square of a given type
+	//returns the Position that is first on the shortest path to the type
+	Position GetPosFromClosestType(Player *p, SquareType type);
+//	//overload << operator to print out the Board when necessary
 	friend std::ostream& operator<<(std::ostream& os, const Board &b);
 
 private:

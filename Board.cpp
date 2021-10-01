@@ -1,6 +1,7 @@
 #include "Board.h"
 
 #include <queue>
+#include <set>
 /**
   Helper function to transform a SquareType to a string
   @param SquareType to be transformed
@@ -117,11 +118,9 @@ Board::Board(char c_size, char c_diff) {
 std::vector<Position> Board::ChooseEnemyPositions(int num_enemies) {
     std::vector<Position> ret_vec;
     for (int i = 0; i < num_enemies; i++) {
-        Position pos;
         int rand_row = 1 + ( std::rand() %  (rows_-1) );
         int rand_col = 1 + ( std::rand() %  (cols_-1) );
-        pos.row = rand_row;
-        pos.col = pos.col;
+        Position pos = {rand_row, rand_col};
         while (get_square_value(pos) != SquareType::Empty) {
             rand_row = 1 + ( std::rand() %  (rows_-1) );
             rand_col = 1 + ( std::rand() %  (cols_ -1) );
@@ -142,15 +141,10 @@ std::vector<Position> Board::GetMoves(Player *p) {
     std::vector<Position> return_vec;
     //get current position and create positions in each cardinal direction
     Position pos = p->get_position();
-    Position north, east, south, west;
-    north.row = pos.row - 1;
-    north.col = pos.col;
-    east.row = pos.row;
-    east.col = pos.col + 1;
-    south.row = pos.row + 1;
-    south.col = pos.col;
-    west.row = pos.row;
-    west.col = pos.col - 1;
+    Position north = {pos.row - 1, pos.col};
+    Position east = {pos.row, pos.col + 1};
+    Position south = {pos.row + 1, pos.col};
+    Position west = {pos.row, pos.col - 1};
     //check if the positions are valid, if so, append to return vector
     if (get_square_value(north) != SquareType::Wall) {
         return_vec.push_back(north);
@@ -237,9 +231,114 @@ bool Board::IsSolvable() {
 bool Board::IsSolvable() {
     if (!((arr_[1][2] == SquareType::Wall) && (arr_[2][1] == SquareType::Wall))) {
         std::queue<Position> q;
+        Position starter = {1,1};
+        q.push(starter);
+        while (!q.empty()) {
+            Position p = q.front();
+            q.pop();
+            if (p.row == rows_-2 && p.col == cols_-2) {
+                return true;
+            }
+            Position p1 = {p.row+1, p.col};
+            if (((p1.row) < (rows_-1)) && IsValid(p1)) {
+                q.push(p1);
+            }
+            Position p2 = {p.row, p.col+1};
+            if (((p2.col) < (cols_-1)) && IsValid(p2)) {
+                q.push(p2);
+            }
+        }
+    } 
+    return false;
+}
+
+/**
+  MHelper method to ensure a given SquareType exists 
+  @param SquareType to look for
+  @return bool which tells if the SquareType exists
+*/
+bool Board::TypeExists(SquareType type) {
+    for (int i = 1; i < rows_-1; i++) {
+        for (int j = 1; j < cols_-1; j++) {
+            Position pos = {i,j};
+            if (get_square_value(pos) == type) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+  Method to find if a path from a player to a given squaretype exists
+  @param Player to find a move for 
+  @param SquareType to look for
+  @return Pos that is first on the path to the Square
+*/
+bool Board::PathToTypeExists(Player *p, SquareType type) {
+    if (TypeExists(type)) {
+        std::queue<Position> q;
+        Position starter = {p->get_position().row,p->get_position().col};
+        q.push(starter);
+        while (!q.empty()) {
+            Position p = q.front();
+            q.pop();
+            if (get_square_value(p) == type) {
+                return true;
+            }
+            Position p1 = {p.row+1,p.col};
+            if (((p1.row) < (rows_-1)) && IsValid(p1)) {
+                q.push(p1);
+            }
+            Position p2 = {p.row,p.col+1};
+            if (((p2.col) < (cols_-1)) && IsValid(p2)) {
+                q.push(p2);
+            }
+        }
+    }
+    return false;
+}
+
+/**
+  Method to find if a path from a player to a given squaretype exists
+  @param Player to find a move for 
+  @param SquareType to look for
+  @return Pos that is first on the path to the Square
+*/
+Position Board::ClosestOfType(Player *p, SquareType type) {
+    std::queue<Position> q;
+    Position starter = {p->get_position().row,p->get_position().col};
+    q.push(starter);
+    while (!q.empty()) {
+        Position p = q.front();
+        q.pop();
+        if (get_square_value(p) == type) {
+            return p;
+        }
+        Position p1 = {p.row+1,p.col};
+        if (((p1.row) < (rows_-1)) && IsValid(p1)) {
+            q.push(p1);
+        }
+        Position p2 = {p.row,p.col+1};
+        if (((p2.col) < (cols_-1)) && IsValid(p2)) {
+            q.push(p2);
+        }
+    }
+}
+
+/**
+  Method to find the nearest square of a given type
+  @param Player to find a move for 
+  @param SquareType to look for
+  @return Pos that is first on the path to the Square
+*/
+/*
+Position Board::GetPosFromClosestType(Player *p, SquareType type) {
+    if (PathToTypeExists(p, type)) {
+        std::queue<Position> q;
         Position starter;
-        starter.row = 1;
-        starter.col = 1;
+        starter.row = p->get_position().row;
+        starter.col = p->get_position().col;
         q.push(starter);
         while (!q.empty()) {
             Position p = q.front();
@@ -260,8 +359,82 @@ bool Board::IsSolvable() {
                 q.push(p2);
             }
         }
-    } 
-    return false;
+    } else {
+        std::vector<Position> possibles = GetMoves(p);
+        int rando = rand() % possibles.size();
+        return possibles.at(rando);
+    }
+}
+*/
+
+void Board::findPath(Position* node, std::vector<Position*> path) {
+    if (node != nullptr) {
+        findPath(node->parent, path);
+        path.push_back(node);
+    }
+}
+
+std::vector<Position*> Board::findPath(Player *p, Position pos) {
+    int row[] = { -1, 0, 0, 1 };
+    int col[] = { 0, -1, 1, 0 };
+    // vector to store the shortest path
+    std::vector<Position*> path;
+    // `N × N` matrix
+    int N = rows_;
+    // base case
+    if (N == 0) {
+        return path;
+    }
+    // create a queue and enqueue the first node
+    std::queue<Position*> q;
+    Position* src = new Position(p->get_position().row, p->get_position().col, nullptr);
+    q.push(src);
+    // set to check if the matrix cell is visited before or not
+    std::set<Position*> visited;
+    visited.insert(src);
+    // loop till queue is empty
+    while (!q.empty())
+    {
+        // dequeue front node and process it
+        Position* curr = q.front();
+        q.pop();
+        int i = curr->row;
+        int j = curr->col;
+        // if the destination is found, print the shortest path and
+        // return the shortest path length
+        if (i == pos.row && j == pos.col)
+        {
+            findPath(curr, path);
+            return path;
+        }
+        // get the value of the current cell
+        // SquareType type = arr_[i][j];
+        // check all four possible movements from the current cell
+        // and recur for each valid movement
+        for (int k = 0; k < 4; k++)
+        {
+            // get next position coordinates using the value of the current cell
+            int x = i + row[k];
+            int y = j + col[k];
+            // check if it is possible to go to the next position
+            // from the current position
+            Position next_pos = {x,y};
+            if (IsValid(next_pos))
+            {
+                // construct the next cell node
+                Position* next = new Position(x, y, curr);
+                // if it isn't visited yet
+                if (!visited.count(next))
+                {
+                    // enqueue it and mark it as visited
+                    q.push(next);
+                    visited.insert(next);
+                }
+            }
+        }
+    }
+    // we reach here if the path is not possible
+    return path;
 }
 
 /**

@@ -33,8 +33,8 @@ public:
 	//randomly move them to a valid pos
     void DoEnemyTurn(Player *p);
 
-	//determine what happens after player inputs where they want to move
-	void DoHumanTurnLogic(Player *p, Position &pos);
+	//method to determine what happens after a player chooses where to move
+	void DoTurnLogic(Player *p, Position &pos);
 
 //	// return true iff the human made it to the exit 
 //	// or the enemies ate all the humans

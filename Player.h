@@ -4,19 +4,37 @@
 #include <string>
 
 struct Position {
+	//coordinates to determine position in Board
 	int row;
 	int col;
-
+	//parent node to help with BFS traversel
+	Position* parent;
+	//normal constructor
+	Position(int new_row, int new_col) {
+		row = new_row;
+		col = new_col;
+		parent = nullptr;
+	}
+	//constructor method to use during BFS
+	Position(int new_row, int new_col, Position* new_parent) {
+		row = new_row;
+		col = new_col;
+		parent = new_parent;
+	}
 	// == overload 
 	bool operator==(const Position &other) {
 		return row == other.row && col == other.col;
+	}
+	// < overload 
+	bool operator<(const Position& pos) const {
+		return (row < pos.row || (row == pos.row && col < pos.col));
 	}
 };
 
 class Player {
 public:
 	// paramterized constructor using initialization list
-	Player(const std::string name, const std::string npc_type, const bool is_human) : name_(name), npc_type_(npc_type), is_human_(is_human) {} 
+	Player(const std::string name, const std::string npc_type, const Position pos, const bool is_human) : name_(name), npc_type_(npc_type), pos_(pos), is_human_(is_human) {} 
 	
 	// getter functions
 	std::string get_name() const {return name_; }  // inline member function
