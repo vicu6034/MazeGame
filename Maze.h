@@ -22,7 +22,7 @@ public:
 //
 //	// have the given Player take their turn
 	void TakeTurn(Player *p);
-//
+
 //	// Get the next player in turn order
 	Player * GetNextPlayer();
 
@@ -30,7 +30,6 @@ public:
 	void KillAll();
 
 	//have an enemy take their turn 
-	//randomly move them to a valid pos
     void DoEnemyTurn(Player *p);
 
 	//method to determine what happens after a player chooses where to move
@@ -39,7 +38,7 @@ public:
 //	// return true iff the human made it to the exit 
 //	// or the enemies ate all the humans
 	bool IsGameOver();
-//
+
 //	// string info about the game's conditions after it is over (names and points)
 	std::string GenerateReport();
 //	//helper method to return how many enemies we should have based off both difficulty and size

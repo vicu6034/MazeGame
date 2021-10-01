@@ -79,28 +79,31 @@ void Maze::DoEnemyTurn(Player *p) {
     //else do the enemies turn
     if (possibles.empty()) {}
     else {
+        Position dummy = {100,100,nullptr};
         if (p->get_npc_type() == "Random") {
             int rando = rand() % possibles.size();
             DoTurnLogic(p, possibles.at(rando));
         } else if (p->get_npc_type() == "Killer") {
-            if (board_->PathToTypeExists(p, SquareType::Human)) {
-                std::vector<Position*> path = board_->findPath(p, board_->ClosestOfType(p,SquareType::Human));
-                Position pos = *path.at(1);
+            if (!(board_->PathToTypeExists(p, SquareType::Human) == dummy)) {
+                Position pos = board_->FindPath(p, board_->PathToTypeExists(p,SquareType::Human));
+                //std::cout << "IN KILLER" << pos.row << "," << pos.col << std::endl;
                 DoTurnLogic(p, pos);
             } else {
+                //std::cout << "Couldn't find path to player" << std::endl;
                 int rando = rand() % possibles.size();
                 DoTurnLogic(p, possibles.at(rando));
             }
         } else if (p->get_npc_type() == "Seeker") {
-            if (board_->PathToTypeExists(p, SquareType::Gold)) {
-                std::vector<Position*> path = board_->findPath(p, board_->ClosestOfType(p,SquareType::Gold));
-                Position pos = *path.at(1);
+            if (!(board_->PathToTypeExists(p, SquareType::Gold) == dummy)) {
+                Position pos = board_->FindPath(p, board_->PathToTypeExists(p,SquareType::Gold));
+                //std::cout << "IN GOLD SEEKER" << pos.row << "," << pos.col << std::endl;
                 DoTurnLogic(p, pos);
-            } else if (board_->PathToTypeExists(p, SquareType::Silver)) {
-                std::vector<Position*> path = board_->findPath(p, board_->ClosestOfType(p,SquareType::Silver));
-                Position pos = *path.at(1);
+            } else if (!(board_->PathToTypeExists(p, SquareType::Silver) == dummy)) {
+                Position pos = board_->FindPath(p, board_->PathToTypeExists(p,SquareType::Silver));
+                //std::cout << "IN SILVER SEEKER" << pos.row << "," << pos.col << std::endl;
                 DoTurnLogic(p, pos);
             } else {
+                //std::cout << "Couldn't find path to treasure" << std::endl;
                 int rando = rand() % possibles.size();
                 DoTurnLogic(p, possibles.at(rando));
             }
@@ -193,61 +196,12 @@ void Maze::TakeTurn(Player *p) {
   @return Player* that is next in the turn order
 */
 Player* Maze::GetNextPlayer() {
-    switch (players_.size()) {
-        case 2:
-            if (current_player_idx_ == 0) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 1) {
-                current_player_idx_ = 0;
-                return (players_.at(current_player_idx_));
-            }
-        case 3:
-            if (current_player_idx_ == 0) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 1) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 2) {
-                current_player_idx_ = 0;
-                return (players_.at(current_player_idx_));
-            }
-        case 4:
-            if (current_player_idx_ == 0) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 1) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 2) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 3) {
-                current_player_idx_ = 0;
-                return (players_.at(current_player_idx_));
-            }
-        case 5:
-            if (current_player_idx_ == 0) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 1) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 2) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 3) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 4) {
-                current_player_idx_ = 0;
-                return (players_.at(current_player_idx_));
-            }
-        default:
-            std::cout << "THIS SHOULDNT HAPPEN - GETNEXTPLAYER()" << std::endl;
-            return nullptr;
+    if (current_player_idx_ < (players_.size()-1)) {
+       current_player_idx_++; 
+    } else {
+       current_player_idx_ = 0;
     }
+    return (players_.at(current_player_idx_));
 }
 
 /**
@@ -311,7 +265,7 @@ int Maze::CalculateEnemies() {
 }
 
 /**
-  Helper function to choose random names for the ais
+  Helper function to choose random ai types for the npcs
   @param int num of enemies to be in the game
   @return vector of strings that are names
 */
