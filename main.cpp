@@ -8,7 +8,7 @@
   @param string to normalize
   @return char that represents normalized version of string
 */
-char NormalizeInput(std::string str) {return tolower(str[0]);}
+char NormalizeInput(const std::string str) {return tolower(str[0]);}
 
 int main() {
     bool play_again = true;
@@ -52,7 +52,8 @@ int main() {
       std::cout << "    S = Silver (50 POINTS)" << std::endl;
       std::cout << "    E = End (WIN)" << std::endl << std::endl;
       //create the maze and human player
-      Player *myPlayer = new Player(name, true);
+      Position starter = {1,1};
+      Player *myPlayer = new Player(name, "Human", starter, true);
       Maze *myMaze = new Maze(c_size, c_diff);
       myMaze->NewGame(myPlayer);
       //have the player go then use nextplayer to loop until the games over (main game loop)

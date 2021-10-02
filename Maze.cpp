@@ -23,7 +23,7 @@ std::vector<std::string> ChooseRandomNames(const int num_enemies) {
   Paramterized maze constructor
   @param char that represents size the Board should be
 */
-Maze::Maze(char c_size, char c_diff) {
+Maze::Maze(const char c_size, const char c_diff) {
     std::vector<Board*> boards;
     boards.push_back(new Board(c_size, c_diff));
     while (!boards.back()->IsSolvable()) {
@@ -42,9 +42,7 @@ Maze::Maze(char c_size, char c_diff) {
 */
 void Maze::NewGame(Player *human) {
     //set humans position to 1,1 and add them to players
-    Position starterpack;
-    starterpack.row = 1;
-    starterpack.col = 1;
+    Position starterpack = {1,1};
     human->SetPosition(starterpack);
     players_.push_back(human);
     int enemies = CalculateEnemies();
@@ -52,9 +50,9 @@ void Maze::NewGame(Player *human) {
     //set their positions and ensure the board is updated
     std::vector<std::string> names = ChooseRandomNames(enemies);
     std::vector<Position> enemy_positions = board_->ChooseEnemyPositions(enemies);
+    std::vector<std::string> npc_types = ChooseNpcTypes();
     for (int i = 0; i < enemies; i++) {
-        Player *playa = new Player(names.at(i),false);
-        playa->SetPosition(enemy_positions.at(i));
+        Player *playa = new Player(names.at(i), npc_types.at(i), enemy_positions.at(i), false);
         players_.push_back(playa);
         board_->SetSquareValue(enemy_positions.at(i), SquareType::Enemy);
     }
@@ -79,37 +77,69 @@ void Maze::DoEnemyTurn(Player *p) {
     std::vector<Position> possibles = board_->GetMoves(p);
     //if theres no moves, do nothing
     //else do the enemies turn
-    if (possibles.empty()) {return;}
+    if (possibles.empty()) {}
     else {
-        int rando = rand() % possibles.size();
-        if (board_->get_square_value(possibles.at(rando)) == SquareType::Human) {
-            //if ai moves onto a human, kill the human
-            std::cout << "An enemy has killed you!" << std::endl;
-            KillAll();
-        } else if ((board_->get_square_value(possibles.at(rando)) == SquareType::Enemy) || (board_->get_square_value(possibles.at(rando)) == SquareType::Exit)) {
-            //do nothing if an enemy moves onto an enemy or the exit (they should never try to go into a wall)
+        Position dummy = {100,100,nullptr};
+        if (p->get_npc_type() == "Random") {
+            int rando = rand() % possibles.size();
+            DoTurnLogic(p, possibles.at(rando));
+        } else if (p->get_npc_type() == "Killer") {
+            if (!(board_->PathToTypeExists(p, SquareType::Human) == dummy)) {
+                Position pos = board_->FindPath(p, board_->PathToTypeExists(p,SquareType::Human));
+                //std::cout << "IN KILLER" << pos.row << "," << pos.col << std::endl;
+                DoTurnLogic(p, pos);
+            } else {
+                //std::cout << "Couldn't find path to player" << std::endl;
+                int rando = rand() % possibles.size();
+                DoTurnLogic(p, possibles.at(rando));
+            }
+        } else if (p->get_npc_type() == "Seeker") {
+            if (!(board_->PathToTypeExists(p, SquareType::Gold) == dummy)) {
+                Position pos = board_->FindPath(p, board_->PathToTypeExists(p,SquareType::Gold));
+                //std::cout << "IN GOLD SEEKER" << pos.row << "," << pos.col << std::endl;
+                DoTurnLogic(p, pos);
+            } else if (!(board_->PathToTypeExists(p, SquareType::Silver) == dummy)) {
+                Position pos = board_->FindPath(p, board_->PathToTypeExists(p,SquareType::Silver));
+                //std::cout << "IN SILVER SEEKER" << pos.row << "," << pos.col << std::endl;
+                DoTurnLogic(p, pos);
+            } else {
+                //std::cout << "Couldn't find path to treasure" << std::endl;
+                int rando = rand() % possibles.size();
+                DoTurnLogic(p, possibles.at(rando));
+            }
         } else {
-            //a normal move
-            board_->MovePlayer(p,possibles.at(rando));
+            std::cout << "Problem with npc_type in DoEnemyTurn" << std::endl;
         }
-        return;
     }
 }
 
 /**
-  Method to compute what happens after the player chooses their direction
+  Method to compute what happens after a player chooses their direction
   @param Player whos turn it is
   @param Position they would like to move to
 */
-void Maze::DoHumanTurnLogic(Player *p, Position &pos) {
-     if (board_->get_square_value(pos) == SquareType::Wall) {
-        //the case where a player runs into a wall, do nothing
-    } else if (board_->get_square_value(pos) == SquareType::Enemy) {
-        //the case where a human runs into an ai, kill the human
-        p->Kill();
+void Maze::DoTurnLogic(Player *p, Position &pos) {
+    if (p->is_human()) {
+        if (board_->get_square_value(pos) == SquareType::Wall) {
+            //the case where a player runs into a wall, do nothing
+        } else if (board_->get_square_value(pos) == SquareType::Enemy) {
+            //the case where a human runs into an ai, kill the human
+            p->Kill();
+        } else {
+            //the case where theres a valid move, move the player
+            board_->MovePlayer(p, pos);
+        }
     } else {
-        //the case where theres a valid move, move the player
-        board_->MovePlayer(p, pos);
+        if (board_->get_square_value(pos) == SquareType::Human) {
+            //if ai moves onto a human, kill the human
+            std::cout << "An enemy has killed you!" << std::endl;
+            KillAll();
+        } else if ((board_->get_square_value(pos) == SquareType::Enemy) || (board_->get_square_value(pos) == SquareType::Exit)) {
+            //do nothing if an enemy moves onto an enemy or the exit (they should never try to go into a wall)
+        } else {
+            //a normal move
+            board_->MovePlayer(p, pos);
+        }
     }
 }
 
@@ -120,50 +150,44 @@ void Maze::DoHumanTurnLogic(Player *p, Position &pos) {
 void Maze::TakeTurn(Player *p) {
     //print out the board
     std::cout << *board_ << std::endl;
-    //cop out to have ai control when an enemy is up
+    //have ai control when an enemy is up
     if (!p->is_human()) {
         DoEnemyTurn(p);
-        return;
-    }
-    //show player the valid directions they can move
-    std::cout << "Available moves: ";
-    std::vector<Position> moves = board_->GetMoves(p);
-    for (int i = 0; i < moves.size(); i++) {
-        std::cout << p->ToRelativePosition(moves.at(i)) << " ";
-    }
-    //get all the possible inputs
-    Position pos = p->get_position();
-    Position north, east, south, west;
-    north.row = pos.row - 1;
-    north.col = pos.col;
-    east.row = pos.row;
-    east.col = pos.col + 1;
-    south.row = pos.row + 1;
-    south.col = pos.col;
-    west.row = pos.row;
-    west.col = pos.col - 1;
-    //prompt player for input
-    std::cout << std::endl << p->get_name() << "'s choice (Please input N , W , S , or E): ";
-    std::string choice;
-    std::cin >> choice;
-
-   char c = NormalizeInput(choice);
-    if (c == 'n') {
-        //cases when the player goes north
-        DoHumanTurnLogic(p,north);
-    } else if (c == 'e') {
-        //cases when the player goes east
-        DoHumanTurnLogic(p,east);
-    } else if (c == 's') {
-        //cases when the player goes south
-        DoHumanTurnLogic(p,south);
-    } else if (c == 'w') {
-        //cases when the player goes west
-        DoHumanTurnLogic(p,west);
     } else {
-        //else theres an invalid input
-        //alert the player they've lost their turn
-        std::cout << "Invalid Input, skipping turn" << std::endl;
+        //show player the valid directions they can move
+        std::cout << "Available moves: ";
+        std::vector<Position> moves = board_->GetMoves(p);
+        for (int i = 0; i < moves.size(); i++) {
+            std::cout << p->ToRelativePosition(moves.at(i)) << " ";
+        }
+        //get all the possible inputs
+        Position pos = p->get_position();
+        Position north = {pos.row - 1, pos.col};
+        Position east = {pos.row, pos.col + 1};
+        Position south = {pos.row + 1, pos.col};
+        Position west = {pos.row, pos.col - 1};
+        //prompt player for input
+        std::cout << std::endl << p->get_name() << "'s choice (Please input N , W , S , or E): ";
+        std::string choice;
+        std::cin >> choice;
+        char c = NormalizeInput(choice);
+        if (c == 'n') {
+            //cases when the player goes north
+            DoTurnLogic(p,north);
+        } else if (c == 'e') {
+            //cases when the player goes east
+            DoTurnLogic(p,east);
+        } else if (c == 's') {
+            //cases when the player goes south
+            DoTurnLogic(p,south);
+        } else if (c == 'w') {
+            //cases when the player goes west
+            DoTurnLogic(p,west);
+        } else {
+            //else theres an invalid input
+            //alert the player they've lost their turn
+            std::cout << "Invalid Input, skipping turn" << std::endl;
+        }
     }
 }
 
@@ -172,61 +196,12 @@ void Maze::TakeTurn(Player *p) {
   @return Player* that is next in the turn order
 */
 Player* Maze::GetNextPlayer() {
-    switch (players_.size()) {
-        case 2:
-            if (current_player_idx_ == 0) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 1) {
-                current_player_idx_ = 0;
-                return (players_.at(current_player_idx_));
-            }
-        case 3:
-            if (current_player_idx_ == 0) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 1) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 2) {
-                current_player_idx_ = 0;
-                return (players_.at(current_player_idx_));
-            }
-        case 4:
-            if (current_player_idx_ == 0) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 1) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 2) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 3) {
-                current_player_idx_ = 0;
-                return (players_.at(current_player_idx_));
-            }
-        case 5:
-            if (current_player_idx_ == 0) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 1) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 2) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 3) {
-                current_player_idx_++;
-                return (players_.at(current_player_idx_));
-            } else if (current_player_idx_ == 4) {
-                current_player_idx_ = 0;
-                return (players_.at(current_player_idx_));
-            }
-        default:
-            std::cout << "THIS SHOULDNT HAPPEN - GETNEXTPLAYER()" << std::endl;
-            return nullptr;
+    if (current_player_idx_ < (players_.size()-1)) {
+       current_player_idx_++; 
+    } else {
+       current_player_idx_ = 0;
     }
+    return (players_.at(current_player_idx_));
 }
 
 /**
@@ -282,9 +257,74 @@ int Maze::CalculateEnemies() {
         return 1;
     } else if (((map_size_ == 's') && (difficulty_ != 'e')) || ((map_size_ == 'm') && (difficulty_ == 'e'))){
         return 2;
-    } else if (((map_size_ == 'm') && (difficulty_ != 'e')) || ((map_size_ == 'l') && (difficulty_ != 'h'))) {
+    } else if (((map_size_ == 'm') && (difficulty_ != 'e')) || ((map_size_ == 'l') && (difficulty_ == 'e'))) {
         return 3;
     } else {
         return 4;
     }
+}
+
+/**
+  Helper function to choose random ai types for the npcs
+  @param int num of enemies to be in the game
+  @return vector of strings that are names
+*/
+std::vector<std::string> Maze::ChooseNpcTypes() {
+    //Random NPCs will move randomly
+    //Killer NPCs will hunt down the player
+    //Seeker NPCs will try to collect treasure
+    std::vector<std::string> types{"Random","Killer","Seeker"};
+    std::vector<std::string> ret_vec;
+    //hardcode in what npc types we want depending on the map size and difficulty
+    switch (map_size_) {
+        case 's':
+            if (difficulty_ == 'e') {
+                ret_vec.push_back(types[0]);
+                break;
+            } else if (difficulty_ == 'm') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[2]);
+                break;
+            } else {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[1]);
+                break;
+            }
+        case 'm':
+            if (difficulty_ == 'e') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[0]);
+                break;
+            } else if (difficulty_ == 'm') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[2]);
+                break;
+            } else {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[2]);
+                break;
+            }
+        case 'l':
+            if (difficulty_ == 'e') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[2]);
+                break;
+            } else if (difficulty_ == 'm') {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[2]);
+                ret_vec.push_back(types[2]);
+                break;
+            } else {
+                ret_vec.push_back(types[0]);
+                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[2]);
+                break;
+            }
+    }
+    return ret_vec;
 }
