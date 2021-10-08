@@ -23,8 +23,12 @@ int main() {
       //prompt player for a size board to play on
       std::string board_size;
       std::cout << "What size board would you like to play on, " << name << "?" << std::endl;
+      std::cout << "Small boards are (4x4)" << std::endl;
+      std::cout << "Medium boards are (6x6)" << std::endl;
+      std::cout << "Large boards are (8x8)" << std::endl;
       std::cout << "Please choose small, medium, or large (s, m, l): ";
       std::cin >> board_size;
+      std::cout << std::endl;
       char c_size = NormalizeInput(board_size);
       while (!(c_size == 's' || c_size == 'm' ||c_size== 'l')) {
         std::cout << "You have entered an invalid input for the size of the board. Please try again: ";
@@ -34,8 +38,13 @@ int main() {
       //prompt player for a difficulty to play with
       std::string difficulty;
       std::cout << "What difficulty would you like to play on, " << name << "?" << std::endl;
-      std::cout << "Please choose easy, medium, or hard (e, m, h): ";
+      std::cout << "On Easy, all enemies move around the map randomly." << std::endl;
+      std::cout << "On Medium, a new enemy type appears which tries to collect points." << std::endl;
+      std::cout << "On Hard, another new enemy appears which tries to chase the Human player." << std::endl;
+      std::cout << "Furthermore, higher difficulties feature harder mazes (they have more walls)." << std::endl;
+      std::cout << "Please choose easy, medium, or hard (e, m, h): "; 
       std::cin >> difficulty;
+      std::cout << std::endl;
       char c_diff = NormalizeInput(difficulty);
       while (!(c_diff == 'e' || c_diff == 'm' ||c_diff == 'h')) {
         std::cout << "You have entered an invalid input for the difficulty of the game. Please try again: ";

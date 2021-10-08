@@ -145,16 +145,16 @@ std::vector<Position> Board::GetMoves(Player *p) {
     Position south = {pos.row + 1, pos.col};
     Position west = {pos.row, pos.col - 1};
     //check if the positions are valid, if so, append to return vector
-    if (get_square_value(north) != SquareType::Wall) {
+    if (IsValid(north)) {
         return_vec.push_back(north);
     }
-    if (get_square_value(east) != SquareType::Wall) {
+    if (IsValid(east)) {
         return_vec.push_back(east);
     }
-    if (get_square_value(south) != SquareType::Wall) {
+    if (IsValid(south)) {
         return_vec.push_back(south);
     }
-    if (get_square_value(west) != SquareType::Wall) {
+    if (IsValid(west)) {
         return_vec.push_back(west);
     }
     return return_vec;

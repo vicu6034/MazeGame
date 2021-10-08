@@ -162,10 +162,6 @@ void Maze::TakeTurn(Player *p) {
         }
         //get all the possible inputs
         Position pos = p->get_position();
-        Position north = {pos.row - 1, pos.col};
-        Position east = {pos.row, pos.col + 1};
-        Position south = {pos.row + 1, pos.col};
-        Position west = {pos.row, pos.col - 1};
         //prompt player for input
         std::cout << std::endl << p->get_name() << "'s choice (Please input N , W , S , or E): ";
         std::string choice;
@@ -173,15 +169,19 @@ void Maze::TakeTurn(Player *p) {
         char c = NormalizeInput(choice);
         if (c == 'n') {
             //cases when the player goes north
+            Position north = {pos.row - 1, pos.col};
             DoTurnLogic(p,north);
         } else if (c == 'e') {
             //cases when the player goes east
+            Position east = {pos.row, pos.col + 1};
             DoTurnLogic(p,east);
         } else if (c == 's') {
             //cases when the player goes south
+            Position south = {pos.row + 1, pos.col};
             DoTurnLogic(p,south);
         } else if (c == 'w') {
             //cases when the player goes west
+            Position west = {pos.row, pos.col - 1};
             DoTurnLogic(p,west);
         } else {
             //else theres an invalid input
@@ -310,18 +310,18 @@ std::vector<std::string> Maze::ChooseNpcTypes() {
             if (difficulty_ == 'e') {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[0]);
-                ret_vec.push_back(types[2]);
+                ret_vec.push_back(types[0]);
                 break;
             } else if (difficulty_ == 'm') {
                 ret_vec.push_back(types[0]);
-                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[2]);
                 ret_vec.push_back(types[2]);
                 break;
             } else {
                 ret_vec.push_back(types[0]);
                 ret_vec.push_back(types[1]);
-                ret_vec.push_back(types[1]);
+                ret_vec.push_back(types[2]);
                 ret_vec.push_back(types[2]);
                 break;
             }
